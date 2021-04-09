@@ -188,6 +188,11 @@ plot.ddsPLS <- function(x,type="criterion",
                   cex.names = cex.names)
         }else{
           popo <- t(x$model$V)[s,,drop=F]
+          if(is.null(colnames(popo))){
+            colnames(popo) <- paste("Y",
+                                    1:q,
+                                    sep="")
+          }
           colnames(popo) <- paste(
             colnames(popo)," (",
             round(x$varExplained$PerYPerComp$Comp[s,],

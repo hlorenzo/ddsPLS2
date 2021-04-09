@@ -321,6 +321,7 @@ eps <- 0.95
 lambdas <- seq(0,1,length.out = 30)
 n_B <- 200
 NCORES <- 4
+# save(mo,file="simu1.RData")
 load("simu1.RData")
 ```
 
@@ -355,6 +356,7 @@ print(sum0$R2Q2[,c(1,4)])
 ```
 
 ```{r, echo=F}
+# save(sum0,file="sumup0.RData")
 load("sumup0.RData")
 ```
 
@@ -425,76 +427,76 @@ It is also possible to directly plot the values of the weights for each componen
 
 
 ```{r wy,fig.width=7,fig.height=3,fig.align="center"}
-plot(mo,type="weightY")
+plot(mo,type="weightY",mar=c(4,7,2,1))
 ```
 
 where it is clear that the first component explains $y_1$ while the second one explains $y_2$. Looking at the weights on the block **X**:
 
 ```{r wx2,fig.width=7,fig.height=3,fig.align="center"}
-plot(mo,type="weightX",horiz=F,cex.names = 0.5 )
+plot(mo,type="weightX",cex.names = 0.5 )
 ```
 
 the variables $\mathbf{x}_{1\dots 50}$ (resp. $\mathbf{x}_{51\dots 75}$) are selected on the first (resp. second) component, which is associated only with $y_1$ (resp. $y_2$).
 
-## A high correlated data-set
+<!-- ## A high correlated data-set -->
 
-We assume now $\alpha=0.8$ which corresponds to
-$$
-\begin{array}{c l c c}
-&
-\mathbf{A} =\sqrt{1-\sigma^2}
-\left(\begin{array}{ccc}
-\boldsymbol{1}_{50}' & 0.89\cdot\boldsymbol{1}_{25}' & \boldsymbol{0}_{25}' & \boldsymbol{0}_{900}'\\
-\boldsymbol{0}_{50}' & 0.45\cdot\boldsymbol{1}_{25}' & \boldsymbol{0}_{25}' & \boldsymbol{0}_{900}'\\
-\boldsymbol{0}_{50}' & \boldsymbol{0}_{25}' &\boldsymbol{1}_{25}' &  \boldsymbol{0}_{900}'\\
-\end{array} \right)
-\end{array}
-$$
-where it is clear that the association of **x** with the second latent variable $\phi_2$ (second row of the previous matrix) is not as strong as the association with the first latent variable $\phi_1$ (first row).
+<!-- We assume now $\alpha=0.8$ which corresponds to -->
+<!-- $$ -->
+<!-- \begin{array}{c l c c} -->
+<!-- & -->
+<!-- \mathbf{A} =\sqrt{1-\sigma^2} -->
+<!-- \left(\begin{array}{ccc} -->
+<!-- \boldsymbol{1}_{50}' & 0.89\cdot\boldsymbol{1}_{25}' & \boldsymbol{0}_{25}' & \boldsymbol{0}_{900}'\\ -->
+<!-- \boldsymbol{0}_{50}' & 0.45\cdot\boldsymbol{1}_{25}' & \boldsymbol{0}_{25}' & \boldsymbol{0}_{900}'\\ -->
+<!-- \boldsymbol{0}_{50}' & \boldsymbol{0}_{25}' &\boldsymbol{1}_{25}' &  \boldsymbol{0}_{900}'\\ -->
+<!-- \end{array} \right) -->
+<!-- \end{array} -->
+<!-- $$ -->
+<!-- where it is clear that the association of **x** with the second latent variable $\phi_2$ (second row of the previous matrix) is not as strong as the association with the first latent variable $\phi_1$ (first row). -->
 
-```{r eval=F}
-eps <- 0.95
-n <- 200
-alpha <- 0.8
-N <- 20
-models <- list()
-for(i in 1:N){
-  print(i)
-  print("****************************************************************************")
-  print("****************************************************************************")
-  datasCor <- getData(n=n,alpha=alpha,beta_0=0.1,sigma=sqrt(1-eps^2),
-                      p1=50,p2=25,p3=25,p=1000)
-  models[[i]] <- ddsPLS(datasCor$X, datasCor$Y,lambdas = lambdas,
-                  n_B=n_B,NCORES=NCORES,verbose = T)
-}
-```
+<!-- ```{r eval=F} -->
+<!-- eps <- 0.95 -->
+<!-- n <- 200 -->
+<!-- alpha <- 0.8 -->
+<!-- N <- 20 -->
+<!-- models <- list() -->
+<!-- for(i in 1:N){ -->
+<!--   print(i) -->
+<!--   print("****************************************************************************") -->
+<!--   print("****************************************************************************") -->
+<!--   datasCor <- getData(n=n,alpha=alpha,beta_0=0.1,sigma=sqrt(1-eps^2), -->
+<!--                       p1=50,p2=25,p3=25,p=1000) -->
+<!--   models[[i]] <- ddsPLS(datasCor$X, datasCor$Y,lambdas = lambdas, -->
+<!--                   n_B=n_B,NCORES=NCORES,verbose = F) -->
+<!-- } -->
+<!-- ``` -->
 
-```{r eval=F, echo=F}
-save(moCor,file = "vignettes/moCor.RData")
-```
+<!-- ```{r eval=F, echo=F} -->
+<!-- save(moCor,file = "vignettes/moCor.RData") -->
+<!-- ``` -->
 
-```{r eval=T, echo=F}
-load("moCor.RData")
-```
+<!-- ```{r eval=T, echo=F} -->
+<!-- load("moCor.RData") -->
+<!-- ``` -->
 
-```{r fig.width=5,fig.height=5,fig.align="center"}
-plot(moCor,type="predict",digits=1,legend.position = "topleft")
-moCor$varExplained$PerY
-```
-In that case only the first variable $y_1$ is selected, even if the explained variance is low ($\approx 0.56\%$).
+<!-- ```{r fig.width=5,fig.height=5,fig.align="center"} -->
+<!-- plot(moCor,type="predict",digits=1,legend.position = "topleft") -->
+<!-- moCor$varExplained$PerY -->
+<!-- ``` -->
+<!-- In that case only the first variable $y_1$ is selected, even if the explained variance is low ($\approx 0.56\%$). -->
 
-```{r fig.width=7,fig.height=3,fig.align="center"}
-plot(moCor,type="weightY")
-moCor$model$V
-```
+<!-- ```{r fig.width=7,fig.height=3,fig.align="center"} -->
+<!-- plot(moCor,type="weightY") -->
+<!-- moCor$model$V -->
+<!-- ``` -->
 
-Now the first component mixes information associated both to $y_1$ and $y_2$. The second component is only associated with the variables $y_2$. This behavior was suggested by the simulation structure due to high correlation ($\alpha$ is close to 1). Plus, the weight of $y_3$ on the second component is not null ($\approx 7.10^{-9}$) that explains the explained variance of $y_3$ found looking at the previous "Predicted versus Observed" plot.
+<!-- Now the first component mixes information associated both to $y_1$ and $y_2$. The second component is only associated with the variables $y_2$. This behavior was suggested by the simulation structure due to high correlation ($\alpha$ is close to 1). Plus, the weight of $y_3$ on the second component is not null ($\approx 7.10^{-9}$) that explains the explained variance of $y_3$ found looking at the previous "Predicted versus Observed" plot. -->
 
-```{r fig.width=7,fig.height=3,fig.align="center"}
-plot(moCor,type="weightX",horiz=F,cex.names = 0.5 )
-setdiff(moCor$Selection$X,1:75)
-```
-The first component is indeed associated with the all 75 variables of interest. The second component is much sparser. In total, the model selects 7 other variables.
+<!-- ```{r fig.width=7,fig.height=3,fig.align="center"} -->
+<!-- plot(moCor,type="weightX",horiz=F,cex.names = 0.5 ) -->
+<!-- setdiff(moCor$Selection$X,1:75) -->
+<!-- ``` -->
+<!-- The first component is indeed associated with the all 75 variables of interest. The second component is much sparser. In total, the model selects 7 other variables. -->
 
 
 ## Appendix
