@@ -1,0 +1,19 @@
+Package: ddsPLS2
+Type: Package
+Title: Data-Driven Sparse PLS 2
+Version: 0.1.0
+Author: Hadrien Lorenzo
+Maintainer: Hadrien Lorenzo <hadrien.lorenzo.2015@gmail.com>
+Description: A sparse PLS implementation which uses soft-thresholded
+	estimation of the covariance matrices and therein introduces
+	sparsity.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Depends: foreach
+Imports: Rcpp (>= 1.0.5)
+LinkingTo: Rcpp, RcppEigen
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
