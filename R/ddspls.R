@@ -104,7 +104,7 @@ ddsPLS <- function(X,Y,lambdas,n_B,
     `%my_do%` <- ifelse(NCORES_w!=1,{
       out<-`%dopar%`;cl <- makeCluster(NCORES_w)
       registerDoParallel(cl);out},{out <- `%do%`;out})
-    res <- foreach(i_B=1:NCORES_w,.packages = "testEigen",
+    res <- foreach(i_B=1:NCORES_w,#.packages = "ddsPLS2",
                    .combine='c',.multicombine=TRUE) %my_do% {
                      bootstrapWrap(U_out,V0,X_init,Y_init,lambdas,lambda_prev,
                                    R=h+1,n_B_i,doBoot=TRUE,n,p,q,N_lambdas)
@@ -156,19 +156,33 @@ ddsPLS <- function(X,Y,lambdas,n_B,
         B_out -> resOUT$B
         out0 <- list(model=list(muX=muX,muY=muY,B=B_previous));class(out0)="ddsPLS"
         out1 <- list(model=list(muX=muX,muY=muY,B=B_out));class(out1)="ddsPLS"
-        Y_est_0 <- predict(out0,X);ind_1 <- (colSums(abs(B_out))>1e-9)*1
-        Y_est_1 <- predict(out1,X);ind_0 <- (colSums(abs(B_previous))>1e-9)*1
-        cor2_0 <- unlist(lapply(1:q,function(j){if(ind_0[j]==1){
+        Y_est_0 <- predict(out0,X)
+        Y_est_1 <- predict(out1,X)
+        cor2_0 <- unlist(lapply(1:q,function(j){
           1-sum((Y_est_0[,j]-Y[,j])^2)/sum((muY[j]-Y[,j])^2)
-          }else{0}
-          }))
-        cor2_1 <- unlist(lapply(1:q,function(j){if(ind_1[j]==1){
+        }))
+        cor2_1 <- unlist(lapply(1:q,function(j){
           1-sum((Y_est_1[,j]-Y[,j])^2)/sum((muY[j]-Y[,j])^2)
-          }else{0}}))
+        }))
+        ## Compute regression on current component only
+        t_r <- resOUT$t[,h]
+        Pi_r <- (abs(resOUT$V[,h])>1e-20)*1
+        Y_est_r <- tcrossprod(t_r)%*%Y/sum(t_r^2)
+        for(j in 1:q){
+          if(Pi_r[j]==0){
+            Y_est_r[,j] <- muY[j]
+          }else{
+            Y_est_r[,j] <- Y_est_r[,j] + muY[j]
+          }
+        }
+        cor2_r <- unlist(lapply(1:q,function(j){
+          1-sum((Y_est_r[,j]-Y[,j])^2)/sum((muY[j]-Y[,j])^2)
+        }))
+        ##
         B_previous <- B_out
         varExplained <- c(varExplained,mean(cor2_1-cor2_0)*100)
         varExplainedTot <- c(varExplainedTot,mean(cor2_1)*100)
-        varExplained_y <- rbind(varExplained_y,(cor2_1-cor2_0)*100)
+        varExplained_y <- rbind(varExplained_y,cor2_r*100)#(cor2_1-cor2_0)*100)
         varExplainedTot_y <- rbind(varExplainedTot_y,(cor2_1)*100)
         if (verbose) {
           ress <- data.frame(

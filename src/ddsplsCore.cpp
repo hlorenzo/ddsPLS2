@@ -502,7 +502,7 @@ ddsPLSCpp bootstrap_pls_CT_Cpp(const Eigen::MatrixXd X_init,const Eigen::MatrixX
     if (test_previous_ok==true) {
       lam_r(0) = lambdas(iLam);
       if (doBoot == false){
-        lam_r(0) = lambdas(r);
+        lam_r(0) = lambdas(0);
       }
       multiComponent res1 = modelddsPLSCpp(u,v,COV,maxCOV,X_r,Y_r,n,p,q,lam_r);
       u_il = res1.U_out;
@@ -616,9 +616,15 @@ Rcpp::List  modelddsPLSCpp_Rcpp(const Eigen::MatrixXd U,const Eigen::MatrixXd V,
                                 const Eigen::MatrixXd X, const Eigen::MatrixXd Y,
                                 const Eigen::VectorXd lambdas,const int R,
                                 const int n,const int p,const int q){
-  Eigen::VectorXd lambda_prev(1);
-  lambda_prev(0) = lambdas(R-1);
-  ddsPLSCpp res = bootstrap_pls_CT_Cpp(X,Y,lambdas,lambda_prev,U,V,n,p,q,1,false,R);
+  // Eigen::VectorXd lambda_prev(1);
+  // lambda_prev(0) = lambdas(R-1);
+  Eigen::VectorXd lambda_prev(R-1);
+  for (int r = 0u; r < R-1; ++r) {
+    lambda_prev(r) = lambdas(r);
+  }
+  Eigen::VectorXd lambda_next(1);
+  lambda_next(0) = lambdas(R-1);
+  ddsPLSCpp res = bootstrap_pls_CT_Cpp(X,Y,lambda_next,lambda_prev,U,V,n,p,q,1,false,R);
   Rcpp::List out;
   out["t"] = res.t;
   out["V"] = res.V;
