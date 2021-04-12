@@ -2,6 +2,9 @@
 #'
 #' @param x A ddsPLS object.
 #' @param return Wether or not to return the printed values, default to FALSE.
+#' @param plotSelection boolean. Whether plot the selection variables.
+#' @param las interger. Parameter for angle of variable names.
+#' @param cex.names real positive. Which factor zomm the variable names.
 #' @param digits integer indicating the number of decimal places (round) to be used.
 #' @param ... Other parameters to be taken into account.
 #'

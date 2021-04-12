@@ -4,7 +4,9 @@
 #' @param type The type of graphics. One of "criterion" (default), "total",
 #' "prop", "predict", "Q2r", "Q2", "R2r", "R2", "weightsX" or "weightsY".
 #' @param digits double. Rounding of the written explained variance.
-#' @param las integer. Rotation of label names.
+#' @param legend.position character. Where to put the legend.
+#' @param horiz boolean. Whether to plot horizontally.
+#' @param mar vector. The margins for the plot.
 #' @param cex.names double. Size factor for variable names.
 #' @param ... Other plotting parameters to affect the plot.
 #'

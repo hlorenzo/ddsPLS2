@@ -303,7 +303,7 @@ eps <- 0.95
 n <- 200
 alpha <- 0.1
 datas <- getData(n=n,alpha=alpha,beta_0=0.1,sigma=sqrt(1-eps^2),
-                 p1=50,p2=25,p3=25,p=1000)
+                 p1=5,p2=3,p3=3,p=30)
 ```
 
 It is also a necessity to fix the grid of $\lambda$, denoted as $\Lambda$ in the previous section and ``lambdas`` in the following. Also the number ``n_B`` of bootstrap samples is chosen, fixed to 200 to get smooth curves.
@@ -313,21 +313,12 @@ lambdas <- seq(0,1,length.out = 30)
 n_B <- 200
 ```
 
-Finally we have chosen to build the model working on ``NCORES=4`` CPUs.
+Finally we have chosen to build the model working on ``NCORES=1`` CPUs.
 
-```{r noCor3, eval=F}
-NCORES <- 4
+```{r noCor3, eval=T}
+NCORES <- 1
 mo <- ddsPLS( datas$X, datas$Y,lambdas = lambdas,
               n_B=n_B,NCORES=NCORES,verbose = F)
-```
-
-```{r, echo=F,fig.width=7,fig.height=5,fig.align="center"}
-eps <- 0.95
-lambdas <- seq(0,1,length.out = 30)
-n_B <- 200
-NCORES <- 4
-# save(mo,file="simu1.RData")
-load("simu1.RData")
 ```
 
 Once the model is built, it is easy to check its performance thanks to the **summary** S3-method.
@@ -345,7 +336,7 @@ A $2$-components model has been built and different metrics are detailed. We can
 Also, this **S3-method** can be used to get the list of the selected variables (and the figure of the _Yes/No_ selction variable, as visible). The high dimension of the data does not allow to conclude directly, the following command allows to say that the variables selected in the **X** data set are exactly the one desired (since the two lists are exactly the same).
 
 ```{r selX}
-setdiff(1:75,mo$Selection$X)
+setdiff(1:8,mo$Selection$X)
 ```
 
 ## Evaluate the quality of the model
@@ -353,17 +344,13 @@ setdiff(1:75,mo$Selection$X)
 ### Compare with "non selection" **ddsPLS** model
 
 As a popint of comparison, we can build the **ddsPLS** model for which $\Lambda=\{0\}$ and look at its prediction performances, through the $\bar{Q}_B^2$ statistics.
-```{r noCor30, eval=F}
+```{r noCor30, eval=T}
 mo0 <- ddsPLS( datas$X, datas$Y,lambdas = 0,
                n_B=n_B,NCORES=NCORES,verbose = F)
 sum0 <- summary(mo0,return = T)
 print(sum0$R2Q2[,c(1,4)])
 ```
 
-```{r, echo=F}
-# save(sum0,file="sumup0.RData")
-load("sumup0.RData")
-```
 
 ```{r}
 print(sum0$R2Q2[,c(1,4)])

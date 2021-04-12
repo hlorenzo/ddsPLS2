@@ -1,18 +1,21 @@
 #' bootstrapWrap
 #'
-#' @param U
-#' @param V
-#' @param X
-#' @param Y
-#' @param lambdas
-#' @param lambda_prev
-#' @param R
-#' @param n_B
-#' @param doBoot
-#' @param n
-#' @param p
-#' @param q
-#' @param N_lambdas
+#' The wrapper used to start the bootstrap commands. Not to be used by the user.
+#'
+#' @param U matrix, weights X
+#' @param V matrix, weights Y
+#' @param X matrix
+#' @param Y matrix
+#' @param lambdas vector, the to be tested values for lambda
+#' @param lambda_prev vector, the previous selected values for lambda
+#' @param R integer, the desired number of components
+#' @param n_B integer, the number of bootstrap samples required
+#' @param doBoot boolean, whether or not perform bootstrap. Used to build the
+#' final model (FALSE)
+#' @param n integer, the number of observations
+#' @param p integer, the number of covariates
+#' @param q integer, the number of response variables
+#' @param N_lambdas integer, the number of to be tested lambdas
 #'
 #' @return List
 bootstrapWrap <- function(U,V,X,Y,lambdas,lambda_prev,
@@ -24,15 +27,22 @@ bootstrapWrap <- function(U,V,X,Y,lambdas,lambda_prev,
 
 #' ddsPLS
 #'
-#' @param X
-#' @param Y
-#' @param lambdas
-#' @param n_B
-#' @param minBootProp
-#' @param lowExplainedVariance
-#' @param NCORES
-#' @param errorMin
-#' @param verbose
+#' The main function of the package. It allows both:
+#'
+#'   *  starting the ddsPLS algorithm, through the bootstrap work.
+#'   *  Building the chosen model, of the class ddsPLS.
+#'
+#' @param X matrix, the covariate matrix (n,p)
+#' @param Y matrix, the response matrix (n,q)
+#' @param lambdas vector, the to be tested values for lambda
+#' @param n_B integer, the number of to be simulated bootstrap samples
+#' @param minBootProp real, between 0 and 1, the minimum proportion of non null
+#' components built to accept the current lambda value. Default to 0.0
+#' @param lowExplainedVariance  real, the minimum value of Q^2_B to accept the
+#' current lambda value. Default to 0.0
+#' @param NCORES integer, the number of cores used. Default to 1
+#' @param verbose boolean, whether to print current results
+#' @param errorMin real, not to be used
 #'
 #' @return
 #' @export list

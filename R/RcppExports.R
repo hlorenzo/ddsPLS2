@@ -32,6 +32,7 @@ modelddsPLSCpp_Rcpp <- function(U, V, X, Y, lambdas, R, n, p, q) {
 #' @param lambda_prev The previously selected values for lambda.
 #' @param R The number of components to build.
 #' @param n_B The number of bootstrap samples to generate and analyse.
+#' @param doBoot Wheteher do bootstrap operations.
 #' @param n The number of observations.
 #' @param p The number of variables of X part.
 #' @param q The number of variables of Y part.
