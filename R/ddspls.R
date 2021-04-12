@@ -190,7 +190,7 @@ ddsPLS <- function(X,Y,lambdas,n_B,
         }))
         ##
         B_previous <- B_out
-        varExplained <- c(varExplained,mean(cor2_1-cor2_0)*100)
+        varExplained <- c(varExplained,mean(cor2_r)*100)#cor2_1-cor2_0)*100)
         varExplainedTot <- c(varExplainedTot,mean(cor2_1)*100)
         varExplained_y <- rbind(varExplained_y,cor2_r*100)#(cor2_1-cor2_0)*100)
         varExplainedTot_y <- rbind(varExplainedTot_y,(cor2_1)*100)
