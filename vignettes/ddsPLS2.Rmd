@@ -40,6 +40,42 @@ getData <- function(n=100,alpha=0.4,beta_0=0.2,sigma=0.3,
   Y <- phi%*%D + errorY*psi[,d+p+1:q,drop=F]
   list(X=X,Y=Y)
 }
+
+R2mean_diff_Q2mean <- cbind(
+  c(0.0390018049710666,0.0341751037010943,0.0300566345943933,0.0270372843280886,0.0251730242086019,0.0242227185400858,0.0234891342998435,0.0193133989423563,0.0169097166961483,0.0171263425383856,0.0170385680914704,0.0163279588077112,0.0152494718863702,0.0144263961042266,0.0139846253273588,0.0138793727811233,0.0138875727882883,0.0139142088056178,0.013947769332828,0.0151373262113938,0.0151964897734,0.0152786585690076,0.0184760931873834,0.0245523530157278,0.0329589020372058,0.0414793872444706,0.0487733189333913,0.0513953941897703,0.0513953941897703,0.0513953941897703)
+  ,
+  c(0.0511147118390687,0.0366502939988904,0.0244192885247774,0.0157596067948765,0.0103693740213229,0.00774690072471196,0.00654474100829194,0.00602821715754076,0.00456584615102629,0.000647908840480049,-0.0012117730626553,-0.00324779272702536,-0.00339597202321107,-0.00349873504246012,-0.00347050350187528,-0.00343289518836143,-0.0033818961424037,-0.00330807936244493,-0.00318820602484982,-0.00296287672757123,-0.00264380624349336,-0.00161555612407471,-0.00511044138700312,-0.00517941187733331,-0.0027506954114751,-0.000122694727787143,0,0,0,0)
+)
+
+Q2mean <- cbind(
+  c(
+    0.377432184277843,0.380140639849587,0.381440573733071,0.381211078689433,0.379661476366436,0.377071669682569,0.373718997129306,0.371737203943991,0.366583285363937,0.357192628930804,0.346720293574788,0.337697081091153,0.332215307215219,0.330014817204357,0.329463268875761,0.329394099789224,0.329391348298594,0.32939602992879,0.329401599141234,0.32892978442128,0.328934064910596,0.328947551675465,0.327555460720922,0.325057907988492,0.321266212859659,0.318924669092771,0.315393736421526,0.295485665498064,0.295485665498064,0.295485665498064
+  ),
+  c(
+    0.550769148647778,0.564051120615041,0.574049282463525,0.579753590218078,0.582232070714579,0.582828526524413,0.582822316455892,0.582729371555363,0.583602822903569,0.586270800202963,0.587558962483909,0.588999196398028,0.589131477829779,0.589208302519195,0.589207789772327,0.58920691960863,0.589205165067086,0.589201245713807,0.589190361787023,0.589150058389219,0.581193572554757,0.540787461471241,0.287353467160313,-0.174809002088594,-0.730811514935191,-0.992123542028864,-1,-1,-1,-1
+  )
+)
+
+PropQ2hPos <- cbind(
+  c(
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1
+  ),
+  c(
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0.995,0.97,0.81,0.52,0.17,0.005,0,0,0,0
+  )
+)
+
+
+
+lambda_optim <- list(
+  c(TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE),
+  c(TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE),
+  c(FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE)
+)
+
+lambdaSparse <- c(0.5172414,0.4482759)
+
+
 ```
 
 ## Overview
@@ -298,27 +334,32 @@ The function ``getData``, printed in **Appendix A.2** allows to simulate a coupl
 
 We assume that $\alpha=0.1$ and we simulate the data thanks to the function given in **Appendix A.2**. For this simulation, a sample of $n=200$ observations is chosen
 
-```{r noCor, eval=F}
+```{r noCor, eval=T}
 eps <- 0.95
 n <- 200
 alpha <- 0.1
 datas <- getData(n=n,alpha=alpha,beta_0=0.1,sigma=sqrt(1-eps^2),
-                 p1=5,p2=3,p3=3,p=30)
+                 p1=50,p2=25,p3=25,p=1000)
 ```
 
 It is also a necessity to fix the grid of $\lambda$, denoted as $\Lambda$ in the previous section and ``lambdas`` in the following. Also the number ``n_B`` of bootstrap samples is chosen, fixed to 200 to get smooth curves.
 
-```{r noCor2, eval=F}
+```{r noCor2, eval=T}
 lambdas <- seq(0,1,length.out = 30)
 n_B <- 200
 ```
 
-Finally we have chosen to build the model working on ``NCORES=1`` CPUs.
+Finally we have chosen to build the model working on ``NCORES=4`` CPUs.
 
-```{r noCor3, eval=T}
-NCORES <- 1
+```{r noCor3, eval=F}
+NCORES <- 4
 mo <- ddsPLS( datas$X, datas$Y,lambdas = lambdas,
               n_B=n_B,NCORES=NCORES,verbose = F)
+```
+
+```{r noCor3hide, echo=F}
+mo <- ddsPLS( datas$X, datas$Y,lambdas = lambdaSparse,
+              n_B=n_B,NCORES=1,verbose = F)
 ```
 
 Once the model is built, it is easy to check its performance thanks to the **summary** S3-method.
@@ -336,7 +377,7 @@ A $2$-components model has been built and different metrics are detailed. We can
 Also, this **S3-method** can be used to get the list of the selected variables (and the figure of the _Yes/No_ selction variable, as visible). The high dimension of the data does not allow to conclude directly, the following command allows to say that the variables selected in the **X** data set are exactly the one desired (since the two lists are exactly the same).
 
 ```{r selX}
-setdiff(1:8,mo$Selection$X)
+setdiff(1:75,mo$Selection$X)
 ```
 
 ## Evaluate the quality of the model
@@ -344,7 +385,7 @@ setdiff(1:8,mo$Selection$X)
 ### Compare with "non selection" **ddsPLS** model
 
 As a popint of comparison, we can build the **ddsPLS** model for which $\Lambda=\{0\}$ and look at its prediction performances, through the $\bar{Q}_B^2$ statistics.
-```{r noCor30, eval=T}
+```{r noCor30, eval=F}
 mo0 <- ddsPLS( datas$X, datas$Y,lambdas = 0,
                n_B=n_B,NCORES=NCORES,verbose = F)
 sum0 <- summary(mo0,return = T)
@@ -353,11 +394,15 @@ print(sum0$R2Q2[,c(1,4)])
 
 
 ```{r}
-print(sum0$R2Q2[,c(1,4)])
+mo0 <- ddsPLS( datas$X, datas$Y,lambdas = 0,
+               n_B=n_B,NCORES=1,verbose = F)
+sum0 <- summary(mo0,return = T)
 ```
-The **ddsPLS** procedure builds a $2$-components model where the prediction quality is $\approx 0.37$ for 1 component and $\approx 0.55$ for 2 components. As a recall, the same statistics are $\approx 0.33$ for 1 component and $\approx 0.60$ for 2 components for the previous model.
+
+It is possible to compare the prediction qualities of the two models using
 
 ```{r}
+print(sum0$R2Q2[,c(1,4)])
 print(sum_up$R2Q2[,c(1,4)])
 ```
 
@@ -391,8 +436,21 @@ Since the the variable $y_3$ has not been selected, its predicted values are con
 
 To plot the criterion, the **plot** argument type must be set to ``criterion``. It is possible to move the legend with the ``legend.position argument``.
 
-```{r criterion,fig.width=7,fig.height=5,fig.align="center"}
+```{r criterion,fig.width=7,fig.height=5,fig.align="center",eval=F}
 plot(mo,type="criterion",legend.position = "top")
+```
+
+```{r criterionhide,fig.width=7,fig.height=5,fig.align="center",echo=F}
+h_opt <- 2
+matplot(lambdas,R2mean_diff_Q2mean,type = "l",ylab="",xlab=expression(lambda),
+              main=bquote(bar(R)[B]^2-bar(Q)[B]^2))
+for(s in 1:h_opt){
+  points(lambdas,R2mean_diff_Q2mean[,s],type = "p",pch=16,cex=lambda_optim[[s]],col=s)
+  points(lambdaSparse[s],R2mean_diff_Q2mean[which.min(abs(lambdas-lambdaSparse[s])),s],pch=1,cex=2,col=s)
+}
+legend("top",paste("Comp.",1:h_opt," (",round(mo$varExplained$Comp),"%)",sep=""),
+       col = 1:h_opt,pch=16,bty = "n",
+       title = paste("Total explained variance ",round(mo$varExplained$Cumu)[h_opt],"%",sep=""))
 ```
 
 The legend title gives the total explained variance by the model built on the two components while the legend itself gives the explained variance by each of the considered component.
@@ -401,16 +459,47 @@ The legend title gives the total explained variance by the model built on the tw
 
 the previous figure does not provide information on the prediction quality of the model. This information can be found using the same **S3-method** fixing the parameter type to ``type="Q2"``. 
 
-```{r Q2r,fig.width=7,fig.height=5}
+```{r Q2r,fig.width=7,fig.height=5,eval=F}
 plot(mo,type="Q2",legend.position = "bottomleft")
+```
+
+```{r Q2rhide,fig.width=7,fig.height=5,echo=F}
+h_opt <- 2
+matplot(lambdas,Q2mean,type = "l",ylab="",xlab=expression(lambda),
+              main=bquote(bar(R)[B]^2-bar(Q)[B]^2))
+for(s in 1:h_opt){
+  points(lambdas,Q2mean[,s],type = "p",pch=16,cex=lambda_optim[[s]],col=s)
+  points(lambdaSparse[s],Q2mean[which.min(abs(lambdas-lambdaSparse[s])),s],pch=1,cex=2,col=s)
+}
+abline(h=0,lwd=2,lty=2)
+legend("bottomleft",paste("Comp.",1:h_opt," (",round(mo$varExplained$Comp),"%)",sep=""),
+       col = 1:h_opt,pch=16,bty = "n",
+       title = paste("Total explained variance ",round(mo$varExplained$Cumu)[h_opt],"%",sep=""))
 ```
 
 According to that figure it is clear that the chosen optimal model (minimizing $\bar{R}_{B}^2-\bar{Q}_{B}^2$) represents a model for which the $\bar{Q}_{B}^2$ on each of its component is not far from being maximum.
 
 ### The proportion of informational bootstrap models
 
-```{r prop,fig.width=7,fig.height=5,fig.align="center"}
+```{r prop,fig.width=7,fig.height=5,fig.align="center",eval=F}
 plot(mo,type="prop",legend.position = "bottomleft")
+```
+
+```{r prophide,fig.width=7,fig.height=5,echo=F}
+h_opt <- 2
+# Plot of Prop of positive Q2h
+matplot(lambdas,PropQ2hPos,type = "l",ylab="",xlab=expression(lambda),
+        main=bquote("Proportion of models with positive"~Q["b,r"]^2))
+abline(h=((1:10)/10)[-5],col="gray80",lwd=0.5,lty=3)
+abline(h=5/10,col="gray60",lwd=0.7,lty=1)
+text(min(lambdas),1/2,labels = "1/2",pos = 4,col="gray40")
+for(s in 1:h_opt){
+  points(lambdas,PropQ2hPos[,s],type = "p",pch=16,cex=mo$lambda_optim[[s]],col=s)
+  points(lambdaSparse[s],PropQ2hPos[which.min(abs(lambdas-lambdaSparse[s])),s],pch=1,cex=2,col=s)
+}
+legend("bottomleft",paste("Comp.",1:h_opt," (",round(mo$varExplained$Comp),"%)",sep=""),
+       col = 1:h_opt,pch=16,bty = "n",
+       title = paste("Total explained variance ",round(mo$varExplained$Cumu)[h_opt],"%",sep=""))
 ```
 
 #### Plot of the weights
@@ -520,3 +609,56 @@ getData
 ```
 
 where the output is a list of two matrices **X** and **Y**.
+
+
+
+### A.3  Definitions of the explained variances...
+
+#### A.3.1 Cumulated
+
+For a model built on $R$ components
+
+$$
+\begin{array}{rccc}
+&\text{ExpVar}_R  & = & 1-\frac{1}{n}\sum_{i=1}^n\dfrac{
+\left|\left|\mathbf{y}_i
+-\hat{\mathbf{y}}^{(1:R)}_i\right|\right|^2
+}{
+\left|\left|\mathbf{y}_i
+-\boldsymbol{\mu}_{\mathbf{y}}\right|\right|^2
+},
+\end{array}
+$$
+
+where 
+
+$$
+\hat{\mathbf{y}}^{(1:R)}
+=
+\left(
+\mathbf{X}-\boldsymbol{\mu}_{\mathbf{x}}
+\right)
+\mathbf{U}_{(1:R)}\left(\mathbf{P}_{(1:R)}'\mathbf{U}_{(1:R)}\right)^{-1}\mathbf{C}_{(1:R)}
++
+\boldsymbol{\mu}_{\mathbf{y}},
+$$
+ and $\mathbf{U}_{(1:R)}$ is the concatenation of the $R$ weights, $\mathbf{P}_{(1:R)}$ is the concatenation of the $R$ scores $\mathbf{p}_r=\mathbf{X}^{(r)'}\mathbf{t}_r/\mathbf{t}_r'\mathbf{t}_r$ and $\mathbf{C}_{(1:R)}$ is the concatenation of the $R$ scores $\mathbf{c}_r=\boldsymbol{\Pi}_r\mathbf{Y}^{(r)'}\mathbf{t}_r/\mathbf{t}_r'\mathbf{t}_r$. The deflated matrices are defined such as
+$$
+\mathbf{X}{^{(r+1)}} =\mathbf{X}^{(r)}-\mathbf{t}_r\mathbf{p}_r',\ \mathbf{Y}{^{(r+1)}} = \mathbf{Y}{^{(r)}} - \mathbf{t}_r\mathbf{c}_r',
+$$
+and $\boldsymbol{\Pi}_r$ is the diagonal matrix with 1 element if the associated response variable is selected and 0 elsewhere. Also, $\boldsymbol{\mu}_{\mathbf{y}}$ and $\boldsymbol{\mu}_{\mathbf{x}}$ are the estimated mean matrices.
+
+##### A.3.2 Per component
+
+
+$$
+\begin{array}{rccc}
+&Q^{2}_{b,r}  & = & 1-\dfrac{
+\left|\left|\mathbf{y}_{\text{OOB}(b)}
+-\hat{\mathbf{y}}_{\text{OOB}(b)}^{(r)}\right|\right|^2
+}{
+\left|\left|\mathbf{y}_{\text{OOB}(b)}
+-\bar{\mathbf{y}}_{\text{IN}(b)}^{(r-1)}\right|\right|^2
+},
+\end{array}
+$$
