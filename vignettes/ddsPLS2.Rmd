@@ -620,13 +620,15 @@ For a model built on $R$ components
 
 $$
 \begin{array}{rccc}
-&\text{ExpVar}_R  & = & 1-\frac{1}{n}\sum_{i=1}^n\dfrac{
+&\text{ExpVar}_{1:R}  & = & 
+\left(1-\frac{1}{n}\sum_{i=1}^n\dfrac{
 \left|\left|\mathbf{y}_i
 -\hat{\mathbf{y}}^{(1:R)}_i\right|\right|^2
 }{
 \left|\left|\mathbf{y}_i
 -\boldsymbol{\mu}_{\mathbf{y}}\right|\right|^2
-},
+}
+\right)*100,
 \end{array}
 $$
 
@@ -650,15 +652,49 @@ and $\boldsymbol{\Pi}_r$ is the diagonal matrix with 1 element if the associated
 
 ##### A.3.2 Per component
 
+$$
+\begin{array}{rccc}
+&\text{ExpVar}_{R}  & = & 
+\left(1-\frac{1}{n}\sum_{i=1}^n\dfrac{
+\left|\left|\mathbf{y}_i
+-\hat{\mathbf{y}}^{(R)}_i\right|\right|^2
+}{
+\left|\left|\mathbf{y}_i
+-\boldsymbol{\mu}_{\mathbf{y}}\right|\right|^2
+}
+\right)*100,
+\end{array}
+$$
+
+##### A.3.3 Per response variable
 
 $$
 \begin{array}{rccc}
-&Q^{2}_{b,r}  & = & 1-\dfrac{
-\left|\left|\mathbf{y}_{\text{OOB}(b)}
--\hat{\mathbf{y}}_{\text{OOB}(b)}^{(r)}\right|\right|^2
+&\text{ExpVar}_{1:R}^{(j)}  & = &
+\left( 1-\frac{1}{n}\sum_{i=1}^n\dfrac{
+\left|\left|y_{i,j}
+-\hat{{y}}^{(1:R)}_{i,j}\right|\right|^2
 }{
-\left|\left|\mathbf{y}_{\text{OOB}(b)}
--\bar{\mathbf{y}}_{\text{IN}(b)}^{(r-1)}\right|\right|^2
-},
+\left|\left|{y}_{i,j}
+-{\mu}_{{y}_j}\right|\right|^2
+}
+\right)*100,
+\end{array}
+$$
+
+##### A.3.4 Per response variable per component
+
+$$
+\begin{array}{rccc}
+&\text{ExpVar}_{R}^{(j)}  & = & 
+\left(
+1-\frac{1}{n}\sum_{i=1}^n\dfrac{
+\left|\left|y_{i,j}
+-\hat{{y}}^{(R)}_{i,j}\right|\right|^2
+}{
+\left|\left|{y}_{i,j}
+-{\mu}_{{y}_j}\right|\right|^2
+}
+\right)*100,
 \end{array}
 $$
