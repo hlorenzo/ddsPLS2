@@ -1,6 +1,6 @@
 # Data Driven Sparse PLS 2 (**ddsPLS2**)
 
-**ddsPLS2** is a sparse PLS formulation based on soft-thresholding estimations of covraiance matrices.
+**ddsPLS2** is a sparse PLS formulation based on soft-thresholding estimations of covariance matrices.
 
 ## Installation
 

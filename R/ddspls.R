@@ -28,9 +28,8 @@ bootstrapWrap <- function(U,V,X,Y,lambdas,lambda_prev,
 #' ddsPLS
 #'
 #' The main function of the package. It allows both:
-#'
-#'   *  starting the ddsPLS algorithm, through the bootstrap work.
-#'   *  Building the chosen model, of the class ddsPLS.
+#' * Starting the ddsPLS algorithm, using bootstrap analysis.
+#' * Building the chosen model, of the class **ddsPLS**.
 #'
 #' @param X matrix, the covariate matrix (n,p)
 #' @param Y matrix, the response matrix (n,q)
