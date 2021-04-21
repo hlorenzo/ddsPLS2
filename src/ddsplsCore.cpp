@@ -637,6 +637,7 @@ Rcpp::List  modelddsPLSCpp_Rcpp(const Eigen::MatrixXd U,const Eigen::MatrixXd V,
 //' @title bootstrap_Rcpp
 //' @description
 //' Start the bootstrap operations.
+//' Should not be used by user.
 //' @name bootstrap_Rcpp.
 //' @param U The weights for X part.
 //' @param V The weights for Y part.
@@ -652,7 +653,6 @@ Rcpp::List  modelddsPLSCpp_Rcpp(const Eigen::MatrixXd U,const Eigen::MatrixXd V,
 //' @param q The number of variables of Y part.
 //' @param N_lambdas The number of to be tested values for lambda.
 //'
-//' @export
 // [[Rcpp::export]]
 Rcpp::List  bootstrap_Rcpp(const Eigen::MatrixXd U,const Eigen::MatrixXd V,
                            const Eigen::MatrixXd X,const Eigen::MatrixXd Y,

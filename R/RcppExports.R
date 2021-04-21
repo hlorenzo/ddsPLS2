@@ -23,6 +23,7 @@ modelddsPLSCpp_Rcpp <- function(U, V, X, Y, lambdas, R, n, p, q) {
 #' @title bootstrap_Rcpp
 #' @description
 #' Start the bootstrap operations.
+#' Should not be used by user.
 #' @name bootstrap_Rcpp.
 #' @param U The weights for X part.
 #' @param V The weights for Y part.
@@ -38,7 +39,6 @@ modelddsPLSCpp_Rcpp <- function(U, V, X, Y, lambdas, R, n, p, q) {
 #' @param q The number of variables of Y part.
 #' @param N_lambdas The number of to be tested values for lambda.
 #'
-#' @export
 bootstrap_Rcpp <- function(U, V, X, Y, lambdas, lambda_prev, R, n_B, doBoot, n, p, q, N_lambdas) {
     .Call('_ddsPLS2_bootstrap_Rcpp', PACKAGE = 'ddsPLS2', U, V, X, Y, lambdas, lambda_prev, R, n_B, doBoot, n, p, q, N_lambdas)
 }
