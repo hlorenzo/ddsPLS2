@@ -596,10 +596,9 @@ ddsPLSCpp bootstrap_pls_CT_Cpp(const Eigen::MatrixXd X_init,const Eigen::MatrixX
 }
 
 
-//' @title modelddsPLSCpp_Rcpp
+//' @title C++ code to build models, internal function
 //' @description
 //' Build a ddsPLS model once the bootstrap operations has allowed to find a correct lambda.
-//' @name modelddsPLSCpp_Rcpp.
 //' @param U The weights for X part.
 //' @param V The weights for Y part.
 //' @param X The matrix of X part.
@@ -610,14 +609,11 @@ ddsPLSCpp bootstrap_pls_CT_Cpp(const Eigen::MatrixXd X_init,const Eigen::MatrixX
 //' @param p The number of variables of X part.
 //' @param q The number of variables of Y part.
 //'
-//' @export
 // [[Rcpp::export]]
 Rcpp::List  modelddsPLSCpp_Rcpp(const Eigen::MatrixXd U,const Eigen::MatrixXd V,
                                 const Eigen::MatrixXd X, const Eigen::MatrixXd Y,
                                 const Eigen::VectorXd lambdas,const int R,
                                 const int n,const int p,const int q){
-  // Eigen::VectorXd lambda_prev(1);
-  // lambda_prev(0) = lambdas(R-1);
   Eigen::VectorXd lambda_prev(R-1);
   for (int r = 0u; r < R-1; ++r) {
     lambda_prev(r) = lambdas(r);
@@ -634,11 +630,10 @@ Rcpp::List  modelddsPLSCpp_Rcpp(const Eigen::MatrixXd U,const Eigen::MatrixXd V,
   return out;
 }
 
-//' @title bootstrap_Rcpp
+//' @title C++ implementation of the bootstrap operations
 //' @description
 //' Start the bootstrap operations.
 //' Should not be used by user.
-//' @name bootstrap_Rcpp.
 //' @param U The weights for X part.
 //' @param V The weights for Y part.
 //' @param X The matrix of X part.

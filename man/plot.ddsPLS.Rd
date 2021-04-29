@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot.ddsPLS.R
 \name{plot.ddsPLS}
 \alias{plot.ddsPLS}
-\title{Function to plot bootstrap performance results of the ddsPLS algorithm.}
+\title{Function to plot bootstrap performance results of the ddsPLS algorithm}
 \usage{
 \method{plot}{ddsPLS}(
   x,
@@ -19,7 +19,7 @@
 \item{x}{A ddsPLS object}
 
 \item{type}{The type of graphics. One of "criterion" (default), "total",
-"prop", "predict", "Q2r", "Q2", "R2r", "R2", "weightsX" or "weightsY".}
+"prop", "predict", "Q2r", "Q2", "R2r", "R2", "weightX" or "weightY".}
 
 \item{digits}{double. Rounding of the written explained variance.}
 
@@ -34,5 +34,8 @@
 \item{...}{Other plotting parameters to affect the plot.}
 }
 \description{
-Function to plot bootstrap performance results of the ddsPLS algorithm.
+Function to plot bootstrap performance results of the ddsPLS algorithm
+}
+\seealso{
+\code{\link{ddsPLS}}, \code{\link{predict.ddsPLS}}, \code{\link{summary.ddsPLS}}
 }

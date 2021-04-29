@@ -1,8 +1,8 @@
-#' Function to plot bootstrap performance results of the ddsPLS algorithm.
+#' Function to plot bootstrap performance results of the ddsPLS algorithm
 #'
 #' @param x A ddsPLS object
 #' @param type The type of graphics. One of "criterion" (default), "total",
-#' "prop", "predict", "Q2r", "Q2", "R2r", "R2", "weightsX" or "weightsY".
+#' "prop", "predict", "Q2r", "Q2", "R2r", "R2", "weightX" or "weightY".
 #' @param digits double. Rounding of the written explained variance.
 #' @param legend.position character. Where to put the legend.
 #' @param horiz boolean. Whether to plot horizontally.
@@ -13,6 +13,8 @@
 #' @importFrom graphics layout
 #'
 #' @export
+#'
+#' @seealso \code{\link{ddsPLS}}, \code{\link{predict.ddsPLS}}, \code{\link{summary.ddsPLS}}
 #'
 #' @useDynLib ddsPLS
 plot.ddsPLS <- function(x,type="criterion",
@@ -26,12 +28,15 @@ plot.ddsPLS <- function(x,type="criterion",
   on.exit(par(opar))
   ## -----------------------------------
   h_opt <- x$R
+  got_inside <- FALSE
   if(h_opt>0){
     q <- ncol(x$Y_obs)
+    p <- nrow(x$model$U)
     lambdas <- x$results$lambdas
     if(type=="total"){
-      layout(matrix(c(1,2,3,4), 2, 2, byrow = TRUE))
+      layout(matrix(c(1,5,2,4,3,3), 3, 2, byrow = TRUE))
     }
+    par(mar=mar)
     if(h_opt>1){
       R2mean_diff_Q2mean <- matrix(do.call(cbind,x$results$R2mean_diff_Q2mean)[,1:h_opt],ncol = h_opt)
       Q2hmean <- matrix(do.call(cbind,x$results$Q2hmean)[,1:h_opt],ncol = h_opt)
@@ -58,8 +63,8 @@ plot.ddsPLS <- function(x,type="criterion",
       legend(legend.position,paste("Comp.",1:h_opt," (",round(x$varExplained$Comp),"%)",sep=""),
              col = 1:h_opt,pch=16,bty = "n",
              title = paste("Total explained variance ",round(x$varExplained$Cumu)[h_opt],"%",sep=""))
-    }
-    if(type %in% c("total","prop")){
+      ;got_inside <- TRUE}
+    if(type %in% c("prop")){
       # Plot of Prop of positive Q2h
       matplot(lambdas,PropQ2hPos,type = "l",ylab="",xlab=expression(lambda),
               main=bquote("Proportion of models with positive"~Q["b,r"]^2))
@@ -74,7 +79,7 @@ plot.ddsPLS <- function(x,type="criterion",
              col = 1:h_opt,pch=16,bty = "n",
              title = paste("Total explained variance ",round(x$varExplained$Cumu)[h_opt],"%",sep=""))
       q <- ncol(x$Y_obs)
-    }
+      ;got_inside <- TRUE}
     if(type %in% c("total","predict")){
       # Predicted versus observed
       matplot(x$Y_obs,x$Y_est,pch=1:q,type="p",xlab="Observed",ylab="Predicted",
@@ -86,30 +91,39 @@ plot.ddsPLS <- function(x,type="criterion",
         nono <- paste(colnames(x$Y_obs)," (",round(x$varExplained$PerY,digits = digits),"%)",sep="")
       }
       legend(legend.position,nono,col = 1:q,pch=1:q,bty = "n")
-    }
+      ;got_inside <- TRUE}
     if(type %in% c("total","selection")){
-      par(mfrow=c(2,1))
-      selX <- x$Selection$X
-      selY <- x$Selection$Y
+      allX <- rep(0,p)
+      allY <- rep(0,q)
+      allX[x$Selection$X] <- 1
+      allY[x$Selection$Y] <- 1
       if(is.null(rownames(x$model$U))){
-        names(selX) <- paste("X",1:p,sep="")
+        names(allX) <- paste("X",1:p,sep="")
       }
-      plot(selX,ylab="",
+      plot(allX,ylab="",
            main=paste("Which variables are selected in block X ?"),
-           yaxt="n",xaxt="n",ylim=c(0,1),col=1+selX,pch=16+selX)
+           yaxt="n",xaxt="n",ylim=c(0,1),col=1+allX,pch=16+allX)
       axis(2,at = c(0,1),labels = c("No","Yes"),las=2)
-      axis(1,at = 1:length(selX),labels = names(selX),
+      axis(1,at = 1:length(allX),labels = names(allX),
            las=las,cex.axis=cex.names)
+      p_app <- 5*((p-p%%5)/5+1)
+      ltys <- rep(2,p_app)
+      ltys[5*(0:(p_app/5))] <- 1
+      abline(v=1:p_app,col="gray",lwd=1/2,lty=ltys)
       if(is.null(rownames(x$model$V))){
-        names(selY) <- paste("Y",1:q,sep="")
+        names(allY) <- paste("Y",1:q,sep="")
       }
-      plot(selY,ylab="",
+      plot(allY,ylab="",
            main=paste("Which variables are selected in block Y ?"),
-           yaxt="n",xaxt="n",ylim=c(0,1),col=1+selY,pch=16+selY)
+           yaxt="n",xaxt="n",ylim=c(0,1),col=1+allY,pch=16+allY)
       axis(2,at = c(0,1),labels = c("No","Yes"),las=2)
       axis(1,at = 1:length(selY),labels = names(selY),
            las=las,cex.axis=cex.names)
-    }
+      q_app <- 5*((q-q%%5)/5+1)
+      ltys <- rep(2,q_app)
+      ltys[5*(0:(q_app/5))] <- 1
+      abline(v=1:q_app,col="gray",lwd=1/2,lty=ltys)
+      ;got_inside <- TRUE}
     if(type %in% c("total","Q2r")){
       # PLot of Q2_h
       matplot(lambdas,Q2hmean,type = "l",ylab="",xlab=expression(lambda),
@@ -124,7 +138,7 @@ plot.ddsPLS <- function(x,type="criterion",
       legend(legend.position,paste("Comp.",1:h_opt," (",round(x$varExplained$Comp),"%)",sep=""),
              col = 1:h_opt,pch=16,bty = "n",
              title = paste("Total explained variance ",round(x$varExplained$Cumu)[h_opt],"%",sep=""))
-    }
+      ;got_inside <- TRUE}
     if(type %in% c("R2r")){
       # PLot of R2_h
       matplot(lambdas,R2hmean,type = "l",ylab="",xlab=expression(lambda),
@@ -138,7 +152,7 @@ plot.ddsPLS <- function(x,type="criterion",
       legend(legend.position,paste("Comp.",1:h_opt," (",round(x$varExplained$Comp),"%)",sep=""),
              col = 1:h_opt,pch=16,bty = "n",
              title = paste("Total explained variance ",round(x$varExplained$Cumu)[h_opt],"%",sep=""))
-    }
+      ;got_inside <- TRUE}
     if(type %in% c("Q2")){
       # PLot of Q2
       matplot(lambdas,Q2mean,type = "l",ylab="",xlab=expression(lambda),
@@ -153,7 +167,7 @@ plot.ddsPLS <- function(x,type="criterion",
       legend(legend.position,paste("Comp.",1:h_opt," (",round(x$varExplained$Comp),"%)",sep=""),
              col = 1:h_opt,pch=16,bty = "n",
              title = paste("Total explained variance ",round(x$varExplained$Cumu)[h_opt],"%",sep=""))
-    }
+      ;got_inside <- TRUE}
     if(type %in% c("R2")){
       # PLot of R2
       matplot(lambdas,R2mean,type = "l",ylab="",xlab=expression(lambda),
@@ -168,7 +182,7 @@ plot.ddsPLS <- function(x,type="criterion",
       legend(legend.position,paste("Comp.",1:h_opt," (",round(x$varExplained$Comp),"%)",sep=""),
              col = 1:h_opt,pch=16,bty = "n",
              title = paste("Total explained variance ",round(x$varExplained$Cumu)[h_opt],"%",sep=""))
-    }
+    ;got_inside <- TRUE}
     if(type == "weightX" | type == "weightY"){
       q <- ncol(x$Y_obs)
       # layout(maLayout)
@@ -209,6 +223,12 @@ plot.ddsPLS <- function(x,type="criterion",
         }
         abline(v = c(-10:10)/10,lty=2,col="gray")
       }
+
+    }
+    if(!got_inside){
+      cat(
+      "Please select a correct type of vizu among `criterion` (default), `total`,
+      `prop`, `predict`, `Q2r`, `Q2`, `R2r`, `R2`, `weightX` or `weightY`.")
     }
   }
 }

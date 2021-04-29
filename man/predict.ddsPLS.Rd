@@ -4,15 +4,18 @@
 \alias{predict.ddsPLS}
 \title{Function to predict from ddsPLS objects}
 \usage{
-\method{predict}{ddsPLS}(x, X_test, ...)
+\method{predict}{ddsPLS}(x, X_test = NULL, ...)
 }
 \arguments{
-\item{x}{A ddsPLS object}
+\item{x}{ddsPLS object}
 
-\item{X_test}{Optimal number of components to be plotted}
+\item{X_test}{matrix, a test data-set. If is "NULL", the default value, the predicted values for the train test are returned}
 
-\item{...}{Other parameters.}
+\item{...}{Other parameters}
 }
 \description{
 Function to predict from ddsPLS objects
+}
+\seealso{
+\code{\link{ddsPLS}}, \code{\link{plot.ddsPLS}}, \code{\link{summary.ddsPLS}}
 }

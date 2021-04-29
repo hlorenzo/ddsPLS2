@@ -1,4 +1,4 @@
-#' Function to sum up bootstrap performance results of the ddsPLS algorithm.
+#' Function to sum up bootstrap performance results of the ddsPLS algorithm
 #'
 #' @param x A ddsPLS object.
 #' @param return Wether or not to return the printed values, default to FALSE.
@@ -9,6 +9,8 @@
 #' @param ... Other parameters to be taken into account.
 #'
 #' @export
+#'
+#' @seealso \code{\link{ddsPLS}}, \code{\link{plot.ddsPLS}}, \code{\link{predict.ddsPLS}}
 #'
 #' @useDynLib ddsPLS
 summary.ddsPLS <- function(x,return=FALSE,

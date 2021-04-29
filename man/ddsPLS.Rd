@@ -2,13 +2,13 @@
 % Please edit documentation in R/ddspls.R
 \name{ddsPLS}
 \alias{ddsPLS}
-\title{ddsPLS}
+\title{Data-Driven Sparse Partial Least Squares}
 \usage{
 ddsPLS(
   X,
   Y,
-  lambdas,
-  n_B,
+  lambdas = seq(0, 1, length.out = 30),
+  n_B = 50,
   minBootProp = 0,
   lowExplainedVariance = 0,
   NCORES = 1,
@@ -17,33 +17,60 @@ ddsPLS(
 )
 }
 \arguments{
-\item{X}{matrix, the covariate matrix (n,p)}
+\item{X}{matrix, the covariate matrix (n,p).}
 
-\item{Y}{matrix, the response matrix (n,q)}
+\item{Y}{matrix, the response matrix (n,q).}
 
-\item{lambdas}{vector, the to be tested values for lambda}
+\item{lambdas}{vector, the to be tested values for \code{lambda}. Each value for \code{lambda} can be interpreted in terms of correlation allowed in the model.
+More precisely :
+\itemize{
+  \item{A covariate `x[j]` is not selected if its empirical correlation with all the response variables `y[1..q]` is below \code{lambda}.}
+  \item{A response variable `y[k]` is not selected if its empirical correlation with all the covariates `x[1..p]` is below \code{lambda}.}
+}
+Default to \code{seq(0,1,length.out = 30)}.}
 
-\item{n_B}{integer, the number of to be simulated bootstrap samples}
+\item{n_B}{integer, the number of to be simulated bootstrap samples. Default to \code{50}.}
 
 \item{minBootProp}{real, between 0 and 1, the minimum proportion of non null
-components built to accept the current lambda value. Default to 0.0}
+components built to accept the current lambda value. Default to \code{0.0}.}
 
 \item{lowExplainedVariance}{real, the minimum value of Q^2_B to accept the
-current lambda value. Default to 0.0}
+current lambda value. Default to \code{0.0}.}
 
-\item{NCORES}{integer, the number of cores used. Default to 1}
+\item{NCORES}{integer, the number of cores used. Default to \code{1}.}
 
-\item{errorMin}{real, not to be used}
+\item{errorMin}{real, not to be used.}
 
-\item{verbose}{boolean, whether to print current results}
+\item{verbose}{boolean, whether to print current results. Defaut to \code{FALSE}.}
 }
 \value{
 
 }
 \description{
-The main function of the package. It allows both:
+The main function of the package. It does both:
+\itemize{
+ \item{Start the ddsPLS algorithm, using bootstrap analysis.}
+ \item{Estimate automatically the number of components and the regularization coefficients.
+ One regularization parameter per component only is needed to select both in \code{x} and in \code{y}.}
+ \item{Build the optimal model, of the class \code{ddsPLS}.}
 }
-\details{
-*  starting the ddsPLS algorithm, through the bootstrap work.
-  *  Building the chosen model, of the class ddsPLS.
+Among the different parameters, the \code{lambda} is the vector of parameters that are
+tested by the algorithm along each component for each bootstrap sample. The total number
+of bootstrap samples is fixed by the parameter \code{n_B}, for this parameter, the more
+ the merrier, even if costs more in computation time.
+This gives access to 3 S3 methods (\code{\link{summary.ddsPLS}}, \code{\link{plot.ddsPLS}} and \code{\link{predict.ddsPLS}}).
+}
+\examples{
+# n <- 100 ; d <- 3 ; p <- 20 ; q <- 2
+# phi <- matrix(rnorm(n*3),n,3)
+# a <- rep(1,p/4) ; b <- rep(1,p/2)
+# X <- phi\%*\%matrix(c(1*a,0*a,0*b,
+#                     1*a,3*b,0*a),nrow = d,byrow = T) + matrix(rnorm(n*p),n,p)
+# Y <- phi\%*\%matrix(c(1,0,
+#                     0,0),nrow = d,byrow = T) + matrix(rnorm(n*q),n,q)
+# model_ddsPLS <- ddsPLS(X,Y,verbose=TRUE)
+
+}
+\seealso{
+\code{\link{summary.ddsPLS}}, \code{\link{plot.ddsPLS}}, \code{\link{predict.ddsPLS}}
 }

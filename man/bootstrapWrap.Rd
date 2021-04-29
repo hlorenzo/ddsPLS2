@@ -2,7 +2,7 @@
 % Please edit documentation in R/ddspls.R
 \name{bootstrapWrap}
 \alias{bootstrapWrap}
-\title{bootstrapWrap}
+\title{C++ wrapper for bootstrap function}
 \usage{
 bootstrapWrap(
   U,

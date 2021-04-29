@@ -2,7 +2,7 @@
 % Please edit documentation in R/summary.ddsPLS.R
 \name{summary.ddsPLS}
 \alias{summary.ddsPLS}
-\title{Function to sum up bootstrap performance results of the ddsPLS algorithm.}
+\title{Function to sum up bootstrap performance results of the ddsPLS algorithm}
 \usage{
 \method{summary}{ddsPLS}(
   x,
@@ -30,5 +30,8 @@
 \item{...}{Other parameters to be taken into account.}
 }
 \description{
-Function to sum up bootstrap performance results of the ddsPLS algorithm.
+Function to sum up bootstrap performance results of the ddsPLS algorithm
+}
+\seealso{
+\code{\link{ddsPLS}}, \code{\link{plot.ddsPLS}}, \code{\link{predict.ddsPLS}}
 }

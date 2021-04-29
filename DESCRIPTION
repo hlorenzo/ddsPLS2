@@ -6,7 +6,7 @@ Author: Hadrien Lorenzo
 Maintainer: Hadrien Lorenzo <hadrien.lorenzo.2015@gmail.com>
 Description: A sparse PLS implementation which uses soft-thresholded
 	estimation of the covariance matrices and therein introduces
-	sparsity.
+	sparsity. Number of components and regularization coefficients are automatically set.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
