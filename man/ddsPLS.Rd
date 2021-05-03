@@ -7,10 +7,11 @@
 ddsPLS(
   X,
   Y,
+  doBoot = TRUE,
   lambdas = seq(0, 1, length.out = 30),
   n_B = 50,
   minBootProp = 0,
-  lowExplainedVariance = 0,
+  lowQ2 = 0,
   NCORES = 1,
   errorMin = 1e-09,
   verbose = FALSE
@@ -20,6 +21,14 @@ ddsPLS(
 \item{X}{matrix, the covariate matrix (n,p).}
 
 \item{Y}{matrix, the response matrix (n,q).}
+
+\item{doBoot}{logical, whether performing bootstrap operations, default to \code{TRUE}. If equal to
+\itemize{
+  \item{\code{FALSE}, a model with is built on the parameters \code{lambda} and the number of components is the length of this vector.
+  In that context, the parameter \code{n_B} is ignored.}
+  \item{\code{TRUE}, the ddsPLS algorithm, through bootstrap validation, is started using \code{lambda} as a grid and \code{n_B} as
+  the total number of bootstrap samples to simulate per component.}
+}}
 
 \item{lambdas}{vector, the to be tested values for \code{lambda}. Each value for \code{lambda} can be interpreted in terms of correlation allowed in the model.
 More precisely :
@@ -34,7 +43,7 @@ Default to \code{seq(0,1,length.out = 30)}.}
 \item{minBootProp}{real, between 0 and 1, the minimum proportion of non null
 components built to accept the current lambda value. Default to \code{0.0}.}
 
-\item{lowExplainedVariance}{real, the minimum value of Q^2_B to accept the
+\item{lowQ2}{real, the minimum value of Q^2_B to accept the
 current lambda value. Default to \code{0.0}.}
 
 \item{NCORES}{integer, the number of cores used. Default to \code{1}.}
@@ -61,8 +70,8 @@ of bootstrap samples is fixed by the parameter \code{n_B}, for this parameter, t
 This gives access to 3 S3 methods (\code{\link{summary.ddsPLS}}, \code{\link{plot.ddsPLS}} and \code{\link{predict.ddsPLS}}).
 }
 \examples{
-# n <- 100 ; d <- 3 ; p <- 20 ; q <- 2
-# phi <- matrix(rnorm(n*3),n,3)
+# n <- 100 ; d <- 2 ; p <- 20 ; q <- 2
+# phi <- matrix(rnorm(n*d),n,d)
 # a <- rep(1,p/4) ; b <- rep(1,p/2)
 # X <- phi\%*\%matrix(c(1*a,0*a,0*b,
 #                     1*a,3*b,0*a),nrow = d,byrow = T) + matrix(rnorm(n*p),n,p)

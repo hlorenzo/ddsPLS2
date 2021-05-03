@@ -134,7 +134,7 @@ plot.ddsPLS <- function(x,type="criterion",
       }
         points(x$lambda[s],Q2hmean[which(lambdas==x$lambda[s]),s],pch=16,col=s)
       }
-      abline(h=x$lowExplainedVariance,lwd=2,lty=2)
+      abline(h=x$lowQ2,lwd=2,lty=2)
       legend(legend.position,paste("Comp.",1:h_opt," (",round(x$varExplained$Comp),"%)",sep=""),
              col = 1:h_opt,pch=16,bty = "n",
              title = paste("Total explained variance ",round(x$varExplained$Cumu)[h_opt],"%",sep=""))
