@@ -42,6 +42,7 @@ public:
   Eigen::MatrixXd U;
   Eigen::MatrixXd V;
   Eigen::MatrixXd B;
+  double lambda0;
 };
 
 class ddsPLSCpp_B {

@@ -288,7 +288,8 @@ ddsPLSCpp bootstrap_pls_CT_Cpp(const Eigen::MatrixXd X_init,const Eigen::MatrixX
                                Eigen::MatrixXd uIN, Eigen::MatrixXd vIN,
                                const int n,const int p,const int q,const int N_lambdas,
                                const bool doBoot = true,
-                               const int h=1, const double errorMin=1.0e-9){
+                               const int h=1, const bool useL0=false,
+                               const double errorMin=1.0e-9){
   Eigen::VectorXd idIB = Eigen::VectorXd::Zero(n);
   Eigen::VectorXd idIBChosen = Eigen::VectorXd::Zero(n);
   Eigen::VectorXd idOOBChosen(n);
@@ -318,6 +319,7 @@ ddsPLSCpp bootstrap_pls_CT_Cpp(const Eigen::MatrixXd X_init,const Eigen::MatrixX
   double n_t_p_i,n_t_p_n_i,d_t_i;
   Eigen::VectorXd sdY(q),sdX(p),muY(q),muX(p);
   Eigen::VectorXd idOOB;
+  double lambda0 = 0.0;
   // Build bootstrap indexes, IB and OOB
   if(doBoot==true){
     while (test){
@@ -496,10 +498,22 @@ ddsPLSCpp bootstrap_pls_CT_Cpp(const Eigen::MatrixXd X_init,const Eigen::MatrixX
   double coeffTest = 0.0;
   bool testGood = false;
   COV = Y_r.transpose()*X_r/double(n-1.0);
+  double lambda_ijk = 0.0;
+  if (useL0==true) {
+    for (int i = 0u; i < n; ++i){
+      for (int j = 0u; j < p; ++j){
+        for (int k = 0u; k < q; ++k){
+          lambda_ijk = (X_r(i,j)*Y_r(i,k)-COV(j,k));
+          lambda0 += lambda_ijk*lambda_ijk;
+        }
+      }
+    }
+    lambda0 /= n*q*p*1.0;
+  }
   maxCOV = COV.lpNorm<Infinity>();
   Eigen::VectorXd vars_expl(N_lambdas), vars_expl_h(N_lambdas), Q2(N_lambdas), Q2_all(N_lambdas);
   for (int iLam = 0u; iLam < N_lambdas; ++iLam){
-    if (test_previous_ok==true) {
+    if (test_previous_ok==true & lambdas(iLam)>=lambda0) {
       lam_r(0) = lambdas(iLam);
       if (doBoot == false){
         lam_r(0) = lambdas(0);
@@ -592,6 +606,7 @@ ddsPLSCpp bootstrap_pls_CT_Cpp(const Eigen::MatrixXd X_init,const Eigen::MatrixX
     out.V = v;
     out.B = B_all;
   }
+  out.lambda0 = lambda0;
   return out;
 }
 
@@ -613,14 +628,15 @@ ddsPLSCpp bootstrap_pls_CT_Cpp(const Eigen::MatrixXd X_init,const Eigen::MatrixX
 Rcpp::List  modelddsPLSCpp_Rcpp(const Eigen::MatrixXd U,const Eigen::MatrixXd V,
                                 const Eigen::MatrixXd X, const Eigen::MatrixXd Y,
                                 const Eigen::VectorXd lambdas,const int R,
-                                const int n,const int p,const int q){
+                                const int n,const int p,const int q,
+                                const bool useL0=false){
   Eigen::VectorXd lambda_prev(R-1);
   for (int r = 0u; r < R-1; ++r) {
     lambda_prev(r) = lambdas(r);
   }
   Eigen::VectorXd lambda_next(1);
   lambda_next(0) = lambdas(R-1);
-  ddsPLSCpp res = bootstrap_pls_CT_Cpp(X,Y,lambda_next,lambda_prev,U,V,n,p,q,1,false,R);
+  ddsPLSCpp res = bootstrap_pls_CT_Cpp(X,Y,lambda_next,lambda_prev,U,V,n,p,q,1,false,R,useL0);
   Rcpp::List out;
   out["t"] = res.t;
   out["V"] = res.V;
@@ -653,14 +669,15 @@ Rcpp::List  bootstrap_Rcpp(const Eigen::MatrixXd U,const Eigen::MatrixXd V,
                            const Eigen::MatrixXd X,const Eigen::MatrixXd Y,
                            const Eigen::VectorXd lambdas,const Eigen::VectorXd lambda_prev,
                            const int R,const int n_B,const bool doBoot,
-                           const int n,const int p,const int q,const int N_lambdas){
+                           const int n,const int p,const int q,const int N_lambdas,
+                           const bool useL0=false){
   Eigen::MatrixXd R2 = Eigen::MatrixXd(n_B,N_lambdas);
   Eigen::MatrixXd R2h = Eigen::MatrixXd(n_B,N_lambdas);
   Eigen::MatrixXd Q2 = Eigen::MatrixXd(n_B,N_lambdas);
   Eigen::MatrixXd Q2h = Eigen::MatrixXd(n_B,N_lambdas);
   ddsPLSCpp res;
   for (int i = 0u; i < n_B; ++i) {
-    res = bootstrap_pls_CT_Cpp(X,Y,lambdas,lambda_prev,U,V,n,p,q,N_lambdas,doBoot,R);
+    res = bootstrap_pls_CT_Cpp(X,Y,lambdas,lambda_prev,U,V,n,p,q,N_lambdas,doBoot,R,useL0);
     R2.block(i,0,1,N_lambdas) = res.R2.transpose();
     R2h.block(i,0,1,N_lambdas) = res.R2h.transpose();
     Q2.block(i,0,1,N_lambdas) = res.Q2.transpose();

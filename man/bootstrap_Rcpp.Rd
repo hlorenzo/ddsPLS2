@@ -17,7 +17,8 @@ bootstrap_Rcpp(
   n,
   p,
   q,
-  N_lambdas
+  N_lambdas,
+  useL0 = FALSE
 )
 }
 \arguments{

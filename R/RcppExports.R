@@ -14,8 +14,8 @@
 #' @param p The number of variables of X part.
 #' @param q The number of variables of Y part.
 #'
-modelddsPLSCpp_Rcpp <- function(U, V, X, Y, lambdas, R, n, p, q) {
-    .Call('_ddsPLS2_modelddsPLSCpp_Rcpp', PACKAGE = 'ddsPLS2', U, V, X, Y, lambdas, R, n, p, q)
+modelddsPLSCpp_Rcpp <- function(U, V, X, Y, lambdas, R, n, p, q, useL0 = FALSE) {
+    .Call('_ddsPLS2_modelddsPLSCpp_Rcpp', PACKAGE = 'ddsPLS2', U, V, X, Y, lambdas, R, n, p, q, useL0)
 }
 
 #' @title C++ implementation of the bootstrap operations
@@ -36,7 +36,7 @@ modelddsPLSCpp_Rcpp <- function(U, V, X, Y, lambdas, R, n, p, q) {
 #' @param q The number of variables of Y part.
 #' @param N_lambdas The number of to be tested values for lambda.
 #'
-bootstrap_Rcpp <- function(U, V, X, Y, lambdas, lambda_prev, R, n_B, doBoot, n, p, q, N_lambdas) {
-    .Call('_ddsPLS2_bootstrap_Rcpp', PACKAGE = 'ddsPLS2', U, V, X, Y, lambdas, lambda_prev, R, n_B, doBoot, n, p, q, N_lambdas)
+bootstrap_Rcpp <- function(U, V, X, Y, lambdas, lambda_prev, R, n_B, doBoot, n, p, q, N_lambdas, useL0 = FALSE) {
+    .Call('_ddsPLS2_bootstrap_Rcpp', PACKAGE = 'ddsPLS2', U, V, X, Y, lambdas, lambda_prev, R, n_B, doBoot, n, p, q, N_lambdas, useL0)
 }
 

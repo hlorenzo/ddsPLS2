@@ -19,9 +19,9 @@
 #'
 #' @return List
 bootstrapWrap <- function(U,V,X,Y,lambdas,lambda_prev,
-                          R,n_B,doBoot=TRUE,n,p,q,N_lambdas){
+                          R,n_B,doBoot=TRUE,n,p,q,N_lambdas,useL0=F){
   res <- bootstrap_Rcpp(U,V,X,Y,lambdas,lambda_prev,
-                        R,n_B,doBoot,n,p,q,N_lambdas)
+                        R,n_B,doBoot,n,p,q,N_lambdas,useL0=useL0)
   res
 }
 
@@ -88,16 +88,19 @@ ddsPLS <- function(X,Y,
                    lambdas=seq(0,1,length.out = 30),n_B=50,
                    minBootProp=0.0,
                    lowQ2=0.0,NCORES=1,errorMin=1e-9,verbose=FALSE){
+
+  # getLambdas <- function(xSC,ySC,n,p,q,Nlambdas=30){
+  #   getLambda0 <- function(xSC,ySC,n,p){
+  #     Sig_est <- matrix(rep(cov(xSC,ySC),n),nrow = n,byrow = T)
+  #     theta <- colMeans((xSC*matrix(rep(ySC,p),n,byrow = F)-Sig_est)^2)
+  #     mean(sqrt(log(p)*theta/n))
+  #   }
+  #   mean(unlist(lapply(1:q,function(j){getLambda0(xSC,ySC[,j],n,p)})))
+  # }
+
   n <- nrow(Y)
   p <- ncol(X)
   q <- ncol(Y)
-  createLambda <- FALSE
-  lambdas_successifs <- list()
-  if(is.null(lambdas)){
-    lambdas <- rep(NA,30)
-    createLambda <- TRUE
-  }
-  N_lambdas <- length(lambdas)
   # Standardize X and Y train and test.
   sdY <- apply(Y,2,sd)
   muY <- apply(Y,2,mean)
@@ -120,6 +123,14 @@ ddsPLS <- function(X,Y,
       sd_y_x_inv[i,] <- 0
     }
   }
+  # Create lambda values
+  useL0 <- F
+  if(is.null(lambdas)){
+    lambdas <- seq(0,1,length.out = 30)
+    useL0 <- T
+  }
+  N_lambdas <- length(lambdas)
+  # First covariance work
   COVInit = crossprod(Y_init,X_init)/(n-1);
   maxCOVInit = max(abs(COVInit))
   lambda_prev <- rep(0,n)
@@ -183,7 +194,7 @@ ddsPLS <- function(X,Y,
         bestVal = min(Results$R2mean_diff_Q2mean[[h+1]][TEST])
         bestID = which(Results$R2mean_diff_Q2mean[[h+1]]==bestVal)[1]
         lambda_prev[h+1] = lambdas[bestID]
-        resMozna <- modelddsPLSCpp_Rcpp(U_out,V0,X_init,Y_init,lambda_prev,R=h+1,n,p,q)
+        resMozna <- modelddsPLSCpp_Rcpp(U_out,V0,X_init,Y_init,lambda_prev,R=h+1,n,p,q,useL0=useL0)
         test_t2 <- sum((resMozna$t[,h+1])^2)>errorMin
         if(test_t2){
           resMozna -> resOUT
@@ -331,7 +342,7 @@ ddsPLS <- function(X,Y,
     varExplained=varExplainedTot <- rep(0,R)
     varExplained_y=varExplainedTot_y <- matrix(0,R,q)
     for(r in 1:R){
-      resr <- modelddsPLSCpp_Rcpp(U_out,V0,X_init,Y_init,lambdas,R=r,n,p,q)
+      resr <- modelddsPLSCpp_Rcpp(U_out,V0,X_init,Y_init,lambdas,R=r,n,p,q,useL0=useL0)
       U_out[,r] = resr$U[,r]
       V0[,r] = resr$V[,r]
       # Compute regressions

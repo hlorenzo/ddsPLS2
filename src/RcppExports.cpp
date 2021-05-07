@@ -7,8 +7,8 @@
 using namespace Rcpp;
 
 // modelddsPLSCpp_Rcpp
-Rcpp::List modelddsPLSCpp_Rcpp(const Eigen::MatrixXd U, const Eigen::MatrixXd V, const Eigen::MatrixXd X, const Eigen::MatrixXd Y, const Eigen::VectorXd lambdas, const int R, const int n, const int p, const int q);
-RcppExport SEXP _ddsPLS2_modelddsPLSCpp_Rcpp(SEXP USEXP, SEXP VSEXP, SEXP XSEXP, SEXP YSEXP, SEXP lambdasSEXP, SEXP RSEXP, SEXP nSEXP, SEXP pSEXP, SEXP qSEXP) {
+Rcpp::List modelddsPLSCpp_Rcpp(const Eigen::MatrixXd U, const Eigen::MatrixXd V, const Eigen::MatrixXd X, const Eigen::MatrixXd Y, const Eigen::VectorXd lambdas, const int R, const int n, const int p, const int q, const bool useL0);
+RcppExport SEXP _ddsPLS2_modelddsPLSCpp_Rcpp(SEXP USEXP, SEXP VSEXP, SEXP XSEXP, SEXP YSEXP, SEXP lambdasSEXP, SEXP RSEXP, SEXP nSEXP, SEXP pSEXP, SEXP qSEXP, SEXP useL0SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -21,13 +21,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const int >::type n(nSEXP);
     Rcpp::traits::input_parameter< const int >::type p(pSEXP);
     Rcpp::traits::input_parameter< const int >::type q(qSEXP);
-    rcpp_result_gen = Rcpp::wrap(modelddsPLSCpp_Rcpp(U, V, X, Y, lambdas, R, n, p, q));
+    Rcpp::traits::input_parameter< const bool >::type useL0(useL0SEXP);
+    rcpp_result_gen = Rcpp::wrap(modelddsPLSCpp_Rcpp(U, V, X, Y, lambdas, R, n, p, q, useL0));
     return rcpp_result_gen;
 END_RCPP
 }
 // bootstrap_Rcpp
-Rcpp::List bootstrap_Rcpp(const Eigen::MatrixXd U, const Eigen::MatrixXd V, const Eigen::MatrixXd X, const Eigen::MatrixXd Y, const Eigen::VectorXd lambdas, const Eigen::VectorXd lambda_prev, const int R, const int n_B, const bool doBoot, const int n, const int p, const int q, const int N_lambdas);
-RcppExport SEXP _ddsPLS2_bootstrap_Rcpp(SEXP USEXP, SEXP VSEXP, SEXP XSEXP, SEXP YSEXP, SEXP lambdasSEXP, SEXP lambda_prevSEXP, SEXP RSEXP, SEXP n_BSEXP, SEXP doBootSEXP, SEXP nSEXP, SEXP pSEXP, SEXP qSEXP, SEXP N_lambdasSEXP) {
+Rcpp::List bootstrap_Rcpp(const Eigen::MatrixXd U, const Eigen::MatrixXd V, const Eigen::MatrixXd X, const Eigen::MatrixXd Y, const Eigen::VectorXd lambdas, const Eigen::VectorXd lambda_prev, const int R, const int n_B, const bool doBoot, const int n, const int p, const int q, const int N_lambdas, const bool useL0);
+RcppExport SEXP _ddsPLS2_bootstrap_Rcpp(SEXP USEXP, SEXP VSEXP, SEXP XSEXP, SEXP YSEXP, SEXP lambdasSEXP, SEXP lambda_prevSEXP, SEXP RSEXP, SEXP n_BSEXP, SEXP doBootSEXP, SEXP nSEXP, SEXP pSEXP, SEXP qSEXP, SEXP N_lambdasSEXP, SEXP useL0SEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -44,14 +45,15 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const int >::type p(pSEXP);
     Rcpp::traits::input_parameter< const int >::type q(qSEXP);
     Rcpp::traits::input_parameter< const int >::type N_lambdas(N_lambdasSEXP);
-    rcpp_result_gen = Rcpp::wrap(bootstrap_Rcpp(U, V, X, Y, lambdas, lambda_prev, R, n_B, doBoot, n, p, q, N_lambdas));
+    Rcpp::traits::input_parameter< const bool >::type useL0(useL0SEXP);
+    rcpp_result_gen = Rcpp::wrap(bootstrap_Rcpp(U, V, X, Y, lambdas, lambda_prev, R, n_B, doBoot, n, p, q, N_lambdas, useL0));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_ddsPLS2_modelddsPLSCpp_Rcpp", (DL_FUNC) &_ddsPLS2_modelddsPLSCpp_Rcpp, 9},
-    {"_ddsPLS2_bootstrap_Rcpp", (DL_FUNC) &_ddsPLS2_bootstrap_Rcpp, 13},
+    {"_ddsPLS2_modelddsPLSCpp_Rcpp", (DL_FUNC) &_ddsPLS2_modelddsPLSCpp_Rcpp, 10},
+    {"_ddsPLS2_bootstrap_Rcpp", (DL_FUNC) &_ddsPLS2_bootstrap_Rcpp, 14},
     {NULL, NULL, 0}
 };
 
