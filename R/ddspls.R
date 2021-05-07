@@ -15,13 +15,13 @@
 #' @param n integer, the number of observations
 #' @param p integer, the number of covariates
 #' @param q integer, the number of response variables
-#' @param N_lambdas integer, the number of to be tested lambdas
+#' @param n_lambdas integer, the number of to be tested lambdas
 #'
 #' @return List
 bootstrapWrap <- function(U,V,X,Y,lambdas,lambda_prev,
-                          R,n_B,doBoot=TRUE,n,p,q,N_lambdas,useL0=F){
+                          R,n_B,doBoot=TRUE,n,p,q,n_lambdas,lambda0){
   res <- bootstrap_Rcpp(U,V,X,Y,lambdas,lambda_prev,
-                        R,n_B,doBoot,n,p,q,N_lambdas,useL0=useL0)
+                        R,n_B,doBoot,n,p,q,n_lambdas,lambda0)
   res
 }
 
@@ -57,6 +57,7 @@ bootstrapWrap <- function(U,V,X,Y,lambdas,lambda_prev,
 #' }
 #' Default to \code{seq(0,1,length.out = 30)}.
 #' @param n_B integer, the number of to be simulated bootstrap samples. Default to \code{50}.
+#' @param n_lambdas integer, the number of lambda values. Taken into account only if \code{lambdas} is \code{NULL}. Default to 100.
 #' @param minBootProp real, between 0 and 1, the minimum proportion of non null
 #' components built to accept the current lambda value. Default to \code{0.0}.
 #' @param lowQ2  real, the minimum value of Q^2_B to accept the
@@ -85,18 +86,18 @@ bootstrapWrap <- function(U,V,X,Y,lambdas,lambda_prev,
 #' @useDynLib ddsPLS
 ddsPLS <- function(X,Y,
                    doBoot=TRUE,
-                   lambdas=seq(0,1,length.out = 30),n_B=50,
+                   lambdas=seq(0,1,length.out = 30),n_B=50,n_lambdas=100,
                    minBootProp=0.0,
                    lowQ2=0.0,NCORES=1,errorMin=1e-9,verbose=FALSE){
 
-  # getLambdas <- function(xSC,ySC,n,p,q,Nlambdas=30){
-  #   getLambda0 <- function(xSC,ySC,n,p){
-  #     Sig_est <- matrix(rep(cov(xSC,ySC),n),nrow = n,byrow = T)
-  #     theta <- colMeans((xSC*matrix(rep(ySC,p),n,byrow = F)-Sig_est)^2)
-  #     mean(sqrt(log(p)*theta/n))
-  #   }
-  #   mean(unlist(lapply(1:q,function(j){getLambda0(xSC,ySC[,j],n,p)})))
-  # }
+  getLambdas <- function(xSC,ySC,n,p,q){
+    getLambda0 <- function(xSC,ySC,n,p){
+      Sig_est <- matrix(rep(cov(xSC,ySC),n),nrow = n,byrow = T)
+      theta <- colMeans((xSC*matrix(rep(ySC,p),n,byrow = F)-Sig_est)^2)
+      mean(sqrt(log(p)*theta/n))
+    }
+    mean(unlist(lapply(1:q,function(j){getLambda0(xSC,ySC[,j],n,p)})))
+  }
 
   n <- nrow(Y)
   p <- ncol(X)
@@ -125,16 +126,20 @@ ddsPLS <- function(X,Y,
   }
   # Create lambda values
   useL0 <- F
+  lambda0 <- NULL
   if(is.null(lambdas)){
-    lambdas <- seq(0,1,length.out = 30)
+    lambdas <- seq(0,1,length.out = n_lambdas)
+    lambda0 <- c(lambda0,getLambdas(X_init,Y_init,n,p,q))
     useL0 <- T
+  }else{
+    lambda0 <- 0
   }
-  N_lambdas <- length(lambdas)
+  n_lambdas <- length(lambdas)
   # First covariance work
   COVInit = crossprod(Y_init,X_init)/(n-1);
   maxCOVInit = max(abs(COVInit))
   lambda_prev <- rep(0,n)
-  TEST <- rep(0,N_lambdas)
+  TEST <- rep(0,n_lambdas)
   test_lambdas <- list()
   nb_ValsOk <- 0
   if(doBoot){
@@ -162,6 +167,21 @@ ddsPLS <- function(X,Y,
       if (verbose) {
         cat(paste("Should we build component " ,h+1 , " ? Bootstrap pending...\n",sep=""))
       }
+      if(h>0 & useL0){
+        ## Look at values for lambda_0
+        X_here <- X_init
+        Y_here <- Y_init
+        for(hr in 1:h){
+          tr <- resOUT$t[,hr]
+          pr <- resOUT$P[,hr]
+          cr <- resOUT$C[,hr]
+          X_here <- X_here - tcrossprod(tr,pr)
+          Y_here <- Y_here - tcrossprod(tr,cr)
+        }
+        lambda0 <- c(lambda0,getLambdas(X_here,Y_here,n,p,q))
+        useL0 <- T
+      }
+      if(!useL0) lambda0 <- rep(0,h+1)
       NCORES_w <- min(NCORES,n_B)
       n_B_i <- ceiling(n_B/NCORES)
       `%my_do%` <- ifelse(NCORES_w!=1,{
@@ -170,7 +190,8 @@ ddsPLS <- function(X,Y,
       res <- foreach(i_B=1:NCORES_w,#.packages = "ddsPLS2",
                      .combine='c',.multicombine=TRUE) %my_do% {
                        bootstrapWrap(U_out,V0,X_init,Y_init,lambdas,lambda_prev,
-                                     R=h+1,n_B_i,doBoot=TRUE,n,p,q,N_lambdas)
+                                     R=h+1,n_B_i,doBoot=TRUE,n,p,q,n_lambdas,
+                                     lambda0=lambda0)
                      }
       if(NCORES_w!=1) stopCluster(cl)
       Results$R2[[h+1]] <- do.call(rbind,res[which(names(res)=="R2")])
@@ -194,7 +215,7 @@ ddsPLS <- function(X,Y,
         bestVal = min(Results$R2mean_diff_Q2mean[[h+1]][TEST])
         bestID = which(Results$R2mean_diff_Q2mean[[h+1]]==bestVal)[1]
         lambda_prev[h+1] = lambdas[bestID]
-        resMozna <- modelddsPLSCpp_Rcpp(U_out,V0,X_init,Y_init,lambda_prev,R=h+1,n,p,q,useL0=useL0)
+        resMozna <- modelddsPLSCpp_Rcpp(U_out,V0,X_init,Y_init,lambda_prev,R=h+1,n,p,q,lambda0)
         test_t2 <- sum((resMozna$t[,h+1])^2)>errorMin
         if(test_t2){
           resMozna -> resOUT
@@ -334,6 +355,7 @@ ddsPLS <- function(X,Y,
       out$Selection <- list(X=which(selX==1),Y=which(selY==1))
     }
     if (verbose & h>0) {
+      browser()
       plot(out)
     }
   }else{
@@ -342,7 +364,7 @@ ddsPLS <- function(X,Y,
     varExplained=varExplainedTot <- rep(0,R)
     varExplained_y=varExplainedTot_y <- matrix(0,R,q)
     for(r in 1:R){
-      resr <- modelddsPLSCpp_Rcpp(U_out,V0,X_init,Y_init,lambdas,R=r,n,p,q,useL0=useL0)
+      resr <- modelddsPLSCpp_Rcpp(U_out,V0,X_init,Y_init,lambdas,R=r,n,p,q,lambda0)
       U_out[,r] = resr$U[,r]
       V0[,r] = resr$V[,r]
       # Compute regressions

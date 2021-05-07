@@ -41,6 +41,8 @@ public:
   Eigen::MatrixXd U_star;
   Eigen::MatrixXd U;
   Eigen::MatrixXd V;
+  Eigen::MatrixXd P;
+  Eigen::MatrixXd C;
   Eigen::MatrixXd B;
   double lambda0;
 };
