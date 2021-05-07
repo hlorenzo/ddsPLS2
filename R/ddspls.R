@@ -355,7 +355,6 @@ ddsPLS <- function(X,Y,
       out$Selection <- list(X=which(selX==1),Y=which(selY==1))
     }
     if (verbose & h>0) {
-      browser()
       plot(out)
     }
   }else{
