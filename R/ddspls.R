@@ -91,6 +91,12 @@ ddsPLS <- function(X,Y,
   n <- nrow(Y)
   p <- ncol(X)
   q <- ncol(Y)
+  createLambda <- FALSE
+  lambdas_successifs <- list()
+  if(is.null(lambdas)){
+    lambdas <- rep(NA,30)
+    createLambda <- TRUE
+  }
   N_lambdas <- length(lambdas)
   # Standardize X and Y train and test.
   sdY <- apply(Y,2,sd)
