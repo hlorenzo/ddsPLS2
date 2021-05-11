@@ -17,8 +17,8 @@ bootstrapWrap(
   n,
   p,
   q,
-  N_lambdas,
-  useL0 = F
+  n_lambdas,
+  lambda0
 )
 }
 \arguments{
@@ -47,7 +47,7 @@ final model (FALSE)}
 
 \item{q}{integer, the number of response variables}
 
-\item{N_lambdas}{integer, the number of to be tested lambdas}
+\item{n_lambdas}{integer, the number of to be tested lambdas}
 }
 \value{
 List

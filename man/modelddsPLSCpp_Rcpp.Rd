@@ -4,7 +4,7 @@
 \alias{modelddsPLSCpp_Rcpp}
 \title{C++ code to build models, internal function}
 \usage{
-modelddsPLSCpp_Rcpp(U, V, X, Y, lambdas, R, n, p, q, useL0 = FALSE)
+modelddsPLSCpp_Rcpp(U, V, X, Y, lambdas, R, n, p, q, lambda0)
 }
 \arguments{
 \item{U}{The weights for X part.}

@@ -10,6 +10,7 @@ ddsPLS(
   doBoot = TRUE,
   lambdas = seq(0, 1, length.out = 30),
   n_B = 50,
+  n_lambdas = 100,
   minBootProp = 0,
   lowQ2 = 0,
   NCORES = 1,
@@ -39,6 +40,8 @@ More precisely :
 Default to \code{seq(0,1,length.out = 30)}.}
 
 \item{n_B}{integer, the number of to be simulated bootstrap samples. Default to \code{50}.}
+
+\item{n_lambdas}{integer, the number of lambda values. Taken into account only if \code{lambdas} is \code{NULL}. Default to 100.}
 
 \item{minBootProp}{real, between 0 and 1, the minimum proportion of non null
 components built to accept the current lambda value. Default to \code{0.0}.}
