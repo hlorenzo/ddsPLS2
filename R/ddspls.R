@@ -362,6 +362,8 @@ ddsPLS <- function(X,Y,
     U_out <- matrix(0,p,R); V0 <- matrix(0,q,R)
     varExplained=varExplainedTot <- rep(0,R)
     varExplained_y=varExplainedTot_y <- matrix(0,R,q)
+    B_total <- matrix(0,p,q)
+    lambda0 <- rep(0,R)
     for(r in 1:R){
       resr <- modelddsPLSCpp_Rcpp(U_out,V0,X_init,Y_init,lambdas,R=r,n,p,q,lambda0)
       U_out[,r] = resr$U[,r]
@@ -400,7 +402,9 @@ ddsPLS <- function(X,Y,
       varExplainedTot[r] <- mean(cor2_1)*100
       varExplained_y[r,] <- cor2_r*100
       varExplainedTot_y[r,] <- cor2_1*100
+      B_total <- B_total + B_1
     }
+    resr$B <- B_total
     idBad <- which(sqrt(colSums(resr$t^2))<1e-9)
     if(length(idBad)>0){
       resr$U[,idBad] <- 0
@@ -412,6 +416,7 @@ ddsPLS <- function(X,Y,
     out$model$muX <- muX
     out$model$sdY <- sdY
     out$model$sdX <- sdX
+    out$R <- length(lambdas)
     class(out) <- "ddsPLS"
     out$varExplained <- list()
     out$varExplained$PerY <- varExplainedTot_y

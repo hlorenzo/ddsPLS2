@@ -152,7 +152,7 @@ oneComponent do_one_componentCpp(const Eigen::MatrixXd x0,const Eigen::MatrixXd 
       valueRd = d2(generator2);
       u0In(j) = valueRd;
     }
-    u0In = u0In/sqrt(u0In.squaredNorm());
+    u0In /= sqrt(u0In.squaredNorm());
 
     while(error>errorMin){
       v0In = COV_high*u0In;
@@ -499,8 +499,13 @@ ddsPLSCpp bootstrap_pls_CT_Cpp(const Eigen::MatrixXd X_init,const Eigen::MatrixX
   bool testGood = false;
   COV = Y_r.transpose()*X_r/double(n-1.0);
   maxCOV = COV.lpNorm<Infinity>();
-  Eigen::VectorXd vars_expl(N_lambdas), vars_expl_h(N_lambdas), Q2(N_lambdas), Q2_all(N_lambdas);
-  for (int iLam = 0u; iLam < N_lambdas; ++iLam){
+  int N_simu_lams = N_lambdas;
+  if (doBoot == false){
+    int N_simu_lams = 1;
+  }
+
+  Eigen::VectorXd vars_expl(N_simu_lams), vars_expl_h(N_simu_lams), Q2(N_simu_lams), Q2_all(N_simu_lams);
+  for (int iLam = 0u; iLam < N_simu_lams; ++iLam){
     if (test_previous_ok==true & lambdas(iLam)>=lambda0(r)) {
       lam_r(0) = lambdas(iLam);
       if (doBoot == false){
@@ -625,7 +630,8 @@ Rcpp::List  modelddsPLSCpp_Rcpp(const Eigen::MatrixXd U,const Eigen::MatrixXd V,
   }
   Eigen::VectorXd lambda_next(1);
   lambda_next(0) = lambdas(R-1);
-  ddsPLSCpp res = bootstrap_pls_CT_Cpp(X,Y,lambda_next,lambda_prev,U,V,n,p,q,1,lambda0,false,R);
+  ddsPLSCpp res = bootstrap_pls_CT_Cpp(X,Y,lambda_next,lambda_prev,
+                                       U,V,n,p,q,1,lambda0,false,R);
   Rcpp::List out;
   out["P"] = res.P;
   out["C"] = res.C;
