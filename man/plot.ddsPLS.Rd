@@ -10,6 +10,7 @@
   digits = 1,
   legend.position = "topright",
   horiz = TRUE,
+  col = NULL,
   cex.names = 1,
   mar = c(5, 4, 4, 2) + 0.1,
   ...
@@ -19,13 +20,15 @@
 \item{x}{A ddsPLS object}
 
 \item{type}{The type of graphics. One of "criterion" (default), "total",
-"prop", "predict", "Q2r", "Q2", "R2r", "R2", "weightX" or "weightY".}
+"prop", "predict", "Q2r", "Q2", "R2r", "R2", "weightX" or "weightY", "loadingX" or "loadingY".}
 
 \item{digits}{double. Rounding of the written explained variance.}
 
 \item{legend.position}{character. Where to put the legend.}
 
 \item{horiz}{boolean. Whether to plot horizontally.}
+
+\item{col}{vector. Mainly to modify bars in weight plots.}
 
 \item{cex.names}{double. Size factor for variable names.}
 

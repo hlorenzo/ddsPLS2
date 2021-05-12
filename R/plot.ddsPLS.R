@@ -2,10 +2,11 @@
 #'
 #' @param x A ddsPLS object
 #' @param type The type of graphics. One of "criterion" (default), "total",
-#' "prop", "predict", "Q2r", "Q2", "R2r", "R2", "weightX" or "weightY".
+#' "prop", "predict", "Q2r", "Q2", "R2r", "R2", "weightX" or "weightY", "loadingX" or "loadingY".
 #' @param digits double. Rounding of the written explained variance.
 #' @param legend.position character. Where to put the legend.
 #' @param horiz boolean. Whether to plot horizontally.
+#' @param col vector. Mainly to modify bars in weight plots.
 #' @param mar vector. The margins for the plot.
 #' @param cex.names double. Size factor for variable names.
 #' @param ... Other plotting parameters to affect the plot.
@@ -21,6 +22,7 @@ plot.ddsPLS <- function(x,type="criterion",
                         digits=1,
                         legend.position="topright",
                         horiz=TRUE,
+                        col=NULL,
                         cex.names=1,mar=c(5, 4, 4, 2) + 0.1,
                         ...){
   ## Reset personnal plot par() settings
@@ -184,6 +186,7 @@ plot.ddsPLS <- function(x,type="criterion",
              title = paste("Total explained variance ",round(x$varExplained$Cumu)[h_opt],"%",sep=""))
     ;got_inside <- TRUE}
     if(type == "weightX" | type == "weightY"){
+      got_inside <- TRUE
       q <- ncol(x$Y_obs)
       # layout(maLayout)
       par(mfrow=c(1,h_opt),mar=mar)
@@ -197,10 +200,16 @@ plot.ddsPLS <- function(x,type="criterion",
       for(s in 1:h_opt){
         if(type == "weightX"){
           popo <- t(x$model$U)[s,,drop=F]
-          barplot(popo,
+          if(is.null(col)){
+            col <- rep(1,q)
+          }
+          colo <- col
+          barplot(as.vector(popo),
                   xlim=c(-1,1)*max(abs(popo)),
                   horiz = horiz,axis.lty = 1,las=2,
+                  names.arg=colnames(popo),
                   main=paste("X part, Comp.",s),
+                  col=colo,border=colo,
                   cex.names = cex.names)
         }else{
           popo <- t(x$model$V)[s,,drop=F]
@@ -214,10 +223,65 @@ plot.ddsPLS <- function(x,type="criterion",
             round(x$varExplained$PerYPerComp$Comp[s,],
                   digits = digits ),
             "%)",sep="")
+          if(is.null(col)){
+            col <- 1:q
+          }
           barplot(as.vector(popo),
                   xlim=c(-1,1)*max(abs(popo)),
                   cex.names = cex.names,horiz = horiz,
-                  names=colnames(popo),col=(1:q),
+                  names=colnames(popo),col=col,border=col,
+                  axis.lty = 1,las=2,
+                  main=paste("Y part, Comp.",s))
+        }
+        abline(v = c(-10:10)/10,lty=2,col="gray")
+      }
+
+    }
+    if(type == "loadingX" | type == "loadingY"){
+      got_inside <- TRUE
+      q <- ncol(x$Y_obs)
+      # layout(maLayout)
+      par(mfrow=c(1,h_opt),mar=mar)
+      if(is.null(colnames(x$Y_obs))){
+        colnames(x$Y_obs) <- paste("Y",1:q,sep="")
+      }
+      if(is.null(rownames(x$model$P))){
+        p <- nrow(x$model$P)
+        rownames(x$model$P) <- paste("X",1:p,sep="")
+      }
+      for(s in 1:h_opt){
+        if(type == "loadingX"){
+          popo <- t(x$model$P)[s,,drop=F]
+          if(is.null(col)){
+            col <- rep(1,q)
+          }
+          colo <- col
+          barplot(as.vector(popo),
+                  xlim=c(-1,1)*max(abs(popo)),
+                  horiz = horiz,axis.lty = 1,las=2,
+                  names.arg=colnames(popo),
+                  main=paste("X part, Comp.",s),
+                  col=colo,border=colo,
+                  cex.names = cex.names)
+        }else{
+          popo <- t(x$model$C)[s,,drop=F]
+          if(is.null(colnames(popo))){
+            colnames(popo) <- paste("Y",
+                                    1:q,
+                                    sep="")
+          }
+          colnames(popo) <- paste(
+            colnames(popo)," (",
+            round(x$varExplained$PerYPerComp$Comp[s,],
+                  digits = digits ),
+            "%)",sep="")
+          if(is.null(col)){
+            col <- 1:q
+          }
+          barplot(as.vector(popo),
+                  xlim=c(-1,1)*max(abs(popo)),
+                  cex.names = cex.names,horiz = horiz,
+                  names=colnames(popo),col=col,border=col,
                   axis.lty = 1,las=2,
                   main=paste("Y part, Comp.",s))
         }
