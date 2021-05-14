@@ -151,12 +151,12 @@ ddsPLS2_App <- function(...) {
     },width = sizeplot2)
 
     model <- eventReactive(input$run, {
-        req(input$fileX,input$fileY)
-        x <- as.matrix(do.call(cbind,datasR()$Xs))
-        y <- as.matrix(datasR()$Y)
-        mo <- ddsPLS(x,y,
-                     verbose=F,doBoot = T,
-                     lambdas = NULL,n_B = input$n_B)
+      req(input$fileX,input$fileY)
+      x <- as.matrix(do.call(cbind,datasR()$Xs))
+      y <- as.matrix(datasR()$Y)
+      mo <- ddsPLS(x,y,
+                   verbose=F,doBoot = T,
+                   lambdas = NULL,n_B = input$n_B)
       return(mo)
     })
 
@@ -181,12 +181,12 @@ ddsPLS2_App <- function(...) {
     },height = sizeplot)
 
     bPLS <- reactive({
-        req(input$fileX,input$fileY)
-        x <- as.matrix(do.call(cbind,datasR()$Xs))
-        y <- as.matrix(datasR()$Y)
-        df <- data.frame(x=x,y=y)
-        moPLS <- plsr(y~.,data=df,ncomp=input$ncomp)
-        out <- moPLS$coefficients[,,input$ncomp]
+      req(input$fileX,input$fileY)
+      x <- as.matrix(do.call(cbind,datasR()$Xs))
+      y <- as.matrix(datasR()$Y)
+      df <- data.frame(x=x,y=y)
+      moPLS <- plsr(y~.,data=df,ncomp=input$ncomp)
+      out <- moPLS$coefficients[,,input$ncomp]
       if(!is.null(out)){
         if(is.vector(out)){
           out <- matrix(out,ncol=1)
@@ -196,12 +196,12 @@ ddsPLS2_App <- function(...) {
     })
 
     output$plot3 <- renderPlot({
-        req(input$fileX,input$fileY)
+      req(input$fileX,input$fileY)
       dada <- datasR()
-        colo <- dada$colsReal
-        ps <- dada$ps
-        K <- length(ps)
-        q <- ncol(dada$Y)
+      colo <- dada$colsReal
+      ps <- dada$ps
+      K <- length(ps)
+      q <- ncol(dada$Y)
       # }
       p_sum <- c(0,cumsum(ps))
       layout(matrix(1:(2*K),nrow = 2,byrow = F))
@@ -212,7 +212,7 @@ ddsPLS2_App <- function(...) {
         matplot(bPLS,type="l",col="gray",ylim=c(-1,1)*max(abs(bPLS)),lty=1,
                 main=paste("PLS regression coefficients, block X",k),xlab="Index",ylab="")
         abline(h=0)
-          matplot(bPLS,type="p",add=T,xlab="",ylab="",col=1:q,pch=1:q)
+        matplot(bPLS,type="p",add=T,xlab="",ylab="",col=1:q,pch=1:q)
         matplot(bddsPLS,type="l",col="gray",lty=1,ylim=c(-1,1)*max(abs(bddsPLS)),
                 main=paste("ddsPLS regression coefficients, block X",k),xlab="Index",ylab="")
         abline(h=0)
