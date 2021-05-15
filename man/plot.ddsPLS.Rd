@@ -20,7 +20,8 @@
 \item{x}{A ddsPLS object}
 
 \item{type}{The type of graphics. One of "criterion" (default), "total",
-"prop", "predict", "Q2r", "Q2", "R2r", "R2", "weightX" or "weightY", "loadingX" or "loadingY".}
+"prop", "predict", "Q2r", "Q2", "R2r", "R2", "weightX", "weightY",
+ "loadingX" or "loadingY".}
 
 \item{digits}{double. Rounding of the written explained variance.}
 

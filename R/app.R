@@ -48,53 +48,37 @@ ddsPLS2_App <- function(...) {
                           sidebarPanel(
                             fileInput("fileX", "Choose CSV Files for X",multiple = TRUE,accept = c("text/csv","text/comma-separated-values,text/plain",".csv")),
                             fileInput("fileY", "Choose CSV File for Y",multiple = TRUE,accept = c("text/csv","text/comma-separated-values,text/plain",".csv")),
+                            actionButton("startimport","Upload",icon=icon("upload"), inline=T),
                             tags$hr(),
-                            checkboxInput("header", "Header", TRUE),
-                            radioButtons("sep", "Separator",choices = c(Comma = ",",Semicolon = ";",Tab = "\t"),selected = ","),
-                            radioButtons("dec", "Decimal",choices = c(Point = ".",Comma = ","),selected = "."),
-                            radioButtons("quote", "Quote",choices = c(None = "","Double Quote" = '"',"Single Quote" = "'"),selected = '"'),
-                            tags$hr(),
-                            actionButton("startimport","Upload",icon=icon("play")),
-                            numericInput("sizeplot2", "Size of plot (pixels)",600,min=200,max=3000,step = 100),
-                            tableOutput("contents")
-                          ),
-                          mainPanel(
-                            plotOutput('plot1R')
-                          )
-                        )),
-               tabPanel("Building model",
-                        sidebarLayout(
-                          sidebarPanel(
                             numericInput('n_B', 'Number of Bootstrap samples',50,min=50,max=1000,step = 50),
                             actionButton("run","Run analysis",icon=icon("play"))
                           ),
                           mainPanel(
-                            verbatimTextOutput("summary")
+                            tabsetPanel(
+                              tabPanel(
+                                title = "The data",
+                                checkboxInput("header", "Header", TRUE),
+                                radioButtons("sep", "Separator",choices = c(Comma = ",",Semicolon = ";",Tab = "\t"),selected = ",", inline=T),
+                                radioButtons("dec", "Decimal",choices = c(Point = ".",Comma = ","),selected = ".", inline=T),
+                                radioButtons("quote", "Quote",choices = c(None = "","Double Quote" = '"',"Single Quote" = "'"),selected = '"', inline=T),
+                                numericInput("sizeplot2", "Size of plot (pixels)",600,min=200,max=3000,step = 100),
+                                tags$hr(),
+                                plotOutput('plot1R')
+                              ),
+                              tabPanel(
+                                title = "Model summary",
+                                verbatimTextOutput("summary")
+                              ),
+                              tabPanel(
+                                title = "Vizualisations",
+                                selectInput('plo', 'Type of vizualization', vizu),
+                                selectInput('pos', 'Legend position', pospos),
+                                numericInput('sizeplot', 'Size of plot (pixels)',600,min=200,max=3000,step = 100),
+                                plotOutput('plot2')
+                                )
+                            )
                           )
-                        )
-               ),
-               tabPanel("Vizualize results",
-                        sidebarLayout(
-                          sidebarPanel(
-                            selectInput('plo', 'Type of vizualization', vizu),
-                            selectInput('pos', 'Legend position', pospos),
-                            numericInput('sizeplot', 'Size of plot (pixels)',600,min=200,max=3000,step = 100)
-                          ),
-                          mainPanel(
-                            plotOutput('plot2')
-                          )
-                        )
-               ),
-               tabPanel("ddsPLS VS PLS",
-                        sidebarLayout(
-                          sidebarPanel(
-                            numericInput('ncomp', 'Number of components for PLS model', 1,min=1,max=10,step = 1)
-                          ),
-                          mainPanel(
-                            plotOutput('plot3')
-                          )
-                        )
-               )
+                        ))
     )
     #=======================================
   )
@@ -114,26 +98,10 @@ ddsPLS2_App <- function(...) {
           stop(safeError(e))
         }
       )
+      ps <- unlist(lapply(dfX_list,ncol))
       list(isSimu=F,Xs = dfX_list,Y=dfY,
-           ps=unlist(lapply(dfX_list,ncol)),
+           ps=ps,
            colsReal=unlist(lapply(1:length(ps),function(k){rep(k,ps[k])})))
-    })
-
-    output$contents <- eventReactive(input$startimport, {
-      dada <- datasR()
-      dfX_list <- dada$Xs
-      dfY <- dada$Y
-      K <- length(dfX_list)
-      out <- matrix(NA,K+1,3)
-      colnames(out) <- c("Block","Number of rows","Number of columns")
-      for(k in 1:K){
-        out[k,2] <- nrow(dfX_list[[k]])
-        out[k,3] <- ncol(dfX_list[[k]])
-      }
-      out[K+1,2] <- nrow(dfY)
-      out[K+1,3] <- ncol(dfY)
-      out[,1] <- c(paste("X",1:K),"Y")
-      return(data.frame(out))
     })
 
     sizeplot2 <- reactive({
@@ -141,10 +109,11 @@ ddsPLS2_App <- function(...) {
     })
 
     output$plot1R <- renderPlot({
-      K <- length(datasR()$Xs)
+      dada <- datasR()
+      K <- length(dada$Xs)
       par(mfrow=c(1,K),mar=c(2,3,3,1))
       for(k in 1:K){
-        matplot((cor(as.matrix(datasR()$Xs[[k]]), as.matrix(datasR()$Y))),type="l",
+        matplot((cor(as.matrix(dada$Xs[[k]]), as.matrix(dada$Y))),type="l",
                 main=paste("Correlation y/Block",k),ylim=c(-1,1),ylab="",lty=1)
         abline(h=c(0,1,-1))
       }
@@ -194,31 +163,6 @@ ddsPLS2_App <- function(...) {
       }
       return(out)
     })
-
-    output$plot3 <- renderPlot({
-      req(input$fileX,input$fileY)
-      dada <- datasR()
-      colo <- dada$colsReal
-      ps <- dada$ps
-      K <- length(ps)
-      q <- ncol(dada$Y)
-      # }
-      p_sum <- c(0,cumsum(ps))
-      layout(matrix(1:(2*K),nrow = 2,byrow = F))
-      for(k in 1:K){
-        id_var <- c(p_sum[k]+1):p_sum[k+1]
-        bPLS <- bPLS()[id_var,]
-        bddsPLS <- model()$model$B[id_var,]
-        matplot(bPLS,type="l",col="gray",ylim=c(-1,1)*max(abs(bPLS)),lty=1,
-                main=paste("PLS regression coefficients, block X",k),xlab="Index",ylab="")
-        abline(h=0)
-        matplot(bPLS,type="p",add=T,xlab="",ylab="",col=1:q,pch=1:q)
-        matplot(bddsPLS,type="l",col="gray",lty=1,ylim=c(-1,1)*max(abs(bddsPLS)),
-                main=paste("ddsPLS regression coefficients, block X",k),xlab="Index",ylab="")
-        abline(h=0)
-        matplot(bddsPLS,type="p",add=T,xlab="",ylab="",pch=1:q,col=1:q)
-      }
-    },height = 1000)
     #=======================================
     #=======================================
   }
