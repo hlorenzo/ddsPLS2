@@ -19,8 +19,14 @@ Once that package is installed, you can access the vignette using that command.
   vignette("ddsPLS2")
   ```
   
-It is also possible to start a built in applet using the command.
+It is also possible to start a built in applet using 
 
   ```r
   ddsPLS2_App()
   ```
+
+and it should start an interactive interface which should look like
+
+![ddsPLS2 applet](doc/appCrop.png)
+
+Thanks for using!
