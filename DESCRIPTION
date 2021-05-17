@@ -1,7 +1,7 @@
 Package: ddsPLS2
 Type: Package
 Title: Data-Driven Sparse PLS 2
-Version: 0.1.0
+Version: 0.1.1
 Author: Hadrien Lorenzo
 Maintainer: Hadrien Lorenzo <hadrien.lorenzo.2015@gmail.com>
 Description: A sparse PLS implementation which uses soft-thresholded
