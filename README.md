@@ -27,6 +27,6 @@ It is also possible to start a built in applet using
 
 and it should start an interactive interface which should look like
 
-![ddsPLS2 applet](~/doc/appCrop.png)
+![ddsPLS2 applet](appCrop.png)
 
 Thanks for using!
