@@ -241,7 +241,6 @@ plot.ddsPLS <- function(x,type="criterion",
     if(type == "loadingX" | type == "loadingY"){
       got_inside <- TRUE
       q <- ncol(x$Y_obs)
-      # layout(maLayout)
       par(mfrow=c(1,h_opt),mar=mar)
       if(is.null(colnames(x$Y_obs))){
         colnames(x$Y_obs) <- paste("Y",1:q,sep="")
@@ -283,48 +282,6 @@ plot.ddsPLS <- function(x,type="criterion",
                   xlim=c(-1,1)*max(abs(popo)),
                   cex.names = cex.names,horiz = horiz,
                   names=colnames(popo),col=col,border=col,
-                  axis.lty = 1,las=2,
-                  main=paste("Y part, Comp.",s))
-        }
-        abline(v = c(-10:10)/10,lty=2,col="gray")
-      }
-
-    }
-    if(type == "loadingX" | type == "loadingY"){
-      q <- ncol(x$Y_obs)
-      # layout(maLayout)
-      par(mfrow=c(1,h_opt),mar=mar)
-      if(is.null(colnames(x$Y_obs))){
-        colnames(x$Y_obs) <- paste("Y",1:q,sep="")
-      }
-      if(is.null(rownames(x$model$P))){
-        p <- nrow(x$model$P)
-        rownames(x$model$P) <- paste("X",1:p,sep="")
-      }
-      for(s in 1:h_opt){
-        if(type == "loadingX"){
-          popo <- t(x$model$P)[s,,drop=F]
-          barplot(popo,
-                  xlim=c(-1,1)*max(abs(popo)),
-                  horiz = horiz,axis.lty = 1,las=2,
-                  main=paste("X part, Comp.",s),
-                  cex.names = cex.names)
-        }else{
-          popo <- t(x$model$C)[s,,drop=F]
-          if(is.null(colnames(popo))){
-            colnames(popo) <- paste("Y",
-                                    1:q,
-                                    sep="")
-          }
-          colnames(popo) <- paste(
-            colnames(popo)," (",
-            round(x$varExplained$PerYPerComp$Comp[s,],
-                  digits = digits ),
-            "%)",sep="")
-          barplot(as.vector(popo),
-                  xlim=c(-1,1)*max(abs(popo)),
-                  cex.names = cex.names,horiz = horiz,
-                  names=colnames(popo),col=(1:q),
                   axis.lty = 1,las=2,
                   main=paste("Y part, Comp.",s))
         }
