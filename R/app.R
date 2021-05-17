@@ -43,7 +43,8 @@ ddsPLS2_App <- function(...) {
   ui <- fluidPage(
     #=======================================
     navbarPage("ddsPLS (data-driven Sparse PLS)",
-               tabPanel("Uploading Files",
+               tabPanel("Data analysis",
+                        titlePanel("Data analysis"),
                         sidebarLayout(
                           sidebarPanel(
                             fileInput("fileX", "Choose CSV Files for X",multiple = TRUE,accept = c("text/csv","text/comma-separated-values,text/plain",".csv")),
@@ -75,10 +76,22 @@ ddsPLS2_App <- function(...) {
                                 selectInput('pos', 'Legend position', pospos),
                                 numericInput('sizeplot', 'Size of plot (pixels)',600,min=200,max=3000,step = 100),
                                 plotOutput('plot2')
-                                )
+                              )
                             )
                           )
-                        ))
+                        )
+               ),
+               tabPanel("Credits",
+                        titlePanel("Credits"),
+                        tags$div(class="header", checked=NA,
+                                 "App. based on the package",
+                                 tags$a(href="https://github.com/hlorenzo/ddsPLS2",
+                                        tags$b("hlorenzo/ddsPLS2"))
+                        ),
+                        br(),
+                        "hadrien.lorenzo.2015@gmail.com",
+                        "2021 May"
+               )
     )
     #=======================================
   )

@@ -13,8 +13,14 @@ There is currently one way to install **ddsPLS2**
   devtools::install_github("hlorenzo/ddsPLS2", build_vignettes = TRUE)
   ```
   
-Once that package is installed, you can access the vignette using that command
+Once that package is installed, you can access the vignette using that command.
 
   ```r
   vignette("ddsPLS2")
+  ```
+  
+It is also possible to start a built in applet using the command.
+
+  ```r
+  ddsPLS2_App()
   ```
