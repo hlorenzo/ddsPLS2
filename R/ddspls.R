@@ -240,8 +240,8 @@ ddsPLS <- function(X,Y,
           B_out -> resOUT$B
           out0 <- list(model=list(muX=muX,muY=muY,B=B_previous));class(out0)="ddsPLS"
           out1 <- list(model=list(muX=muX,muY=muY,B=B_out));class(out1)="ddsPLS"
-          Y_est_0 <- predict(out0,X)
-          Y_est_1 <- predict(out1,X)
+          Y_est_0 <- predict(out0,X,doDiagnosis=F)$y_est
+          Y_est_1 <- predict(out1,X,doDiagnosis=F)$y_est
           cor2_0 <- unlist(lapply(1:q,function(j){
             1-sum((Y_est_0[,j]-Y[,j])^2)/sum((muY[j]-Y[,j])^2)
           }))
@@ -336,9 +336,10 @@ ddsPLS <- function(X,Y,
     out$R2 = R2Sol
     out$R2h = R2hSol
     out$lowQ2=lowQ2
+    out$X <- X
     class(out) <- "ddsPLS"
     if(h>0){
-      out$Y_est <- predict(out,X)
+      out$Y_est <- predict(out,X,doDiagnosis=F)$y_est
       out$Y_obs <- Y
       colnames(out$Y_est) = colnames(Y)
       rownames(out$model$V) = colnames(Y)
@@ -395,7 +396,7 @@ ddsPLS <- function(X,Y,
         B_1[,j] <- B_1[,j]*sdY[j]
       }
       out1 <- list(model=list(muX=muX,muY=muY,B=B_1));class(out1)="ddsPLS"
-      Y_est_1 <- predict(out1,X)
+      Y_est_1 <- predict(out1,X,doDiagnosis=F)$y_est
       cor2_1 <- unlist(lapply(1:q,function(j){
         1-sum((Y_est_1[,j]-Y[,j])^2)/sum((muY[j]-Y[,j])^2)
       }))
@@ -423,11 +424,12 @@ ddsPLS <- function(X,Y,
     out$varExplained <- list()
     out$varExplained$PerY <- varExplainedTot_y
     out$varExplained$Comp <- varExplained
-    out$varExplained$Cumu <- varExplainedTot
+    out$varExplainedg$Cumu <- varExplainedTot
     out$varExplained$PerYPerComp <- list()
     out$varExplained$PerYPerComp$Comp <- varExplained_y
     out$varExplained$PerYPerComp$Cumu <- varExplainedTot_y
-    out$Y_est <- predict(out,X)
+    out$X <- X
+    out$Y_est <- predict(out,X,doDiagnosis=F)$y_est
     out$Y_obs <- Y
     colnames(out$Y_est) = colnames(Y)
     rownames(out$model$V) = colnames(Y)
