@@ -57,7 +57,11 @@ ddsPLS2_App <- function(...) {
                             numericInput('NCORES', "Number of CPU's to be used",1,min=1,max=15,step = 1),
                             actionButton("run","Run analysis",icon=icon("play")),
                             tags$hr(),
-                            tableOutput("summaryShort")# verbatimTextOutput("summaryShort")
+                            tableOutput("summaryShort"),# verbatimTextOutput("summaryShort")
+                            tags$hr(),
+                            h2("Test data"),
+                            fileInput("fileXTest", "Choose CSV Files for X test",multiple = TRUE,accept = c("text/csv","text/comma-separated-values,text/plain",".csv")),
+                            actionButton("startimportTest","Upload Test",icon=icon("upload"), inline=T)
                           ),
                           mainPanel(
                             tabsetPanel(
@@ -90,6 +94,10 @@ ddsPLS2_App <- function(...) {
                                 selectInput('pos', 'Legend position', pospos),
                                 numericInput('sizeplot', 'Size of plot (pixels)',600,min=200,max=3000,step = 100),
                                 plotOutput('plot2')
+                              ),
+                              tabPanel(
+                                title = "Test data results",
+                                plotOutput('plottest')
                               )
                             )
                           )
@@ -146,6 +154,22 @@ ddsPLS2_App <- function(...) {
            ps=ps,
            outputFiles=outputFiles,
            colsReal=unlist(lapply(1:length(ps),function(k){rep(k,ps[k])})))
+    })
+
+    X_test <- eventReactive(input$startimportTest, {
+      K <- nrow(input$fileXTest)
+      tryCatch(
+        {
+          dfX_list <- lapply(input$fileXTest$datapath,function(fifi){
+            read.csv(fifi,header = input$header,sep = input$sep,dec = input$dec,
+                     quote = input$quote)
+          })
+        },
+        error = function(e) {
+          stop(safeError(e))
+        }
+      )
+      do.call(cbind,dfX_list)
     })
 
     output$headerBlock <- renderTable({
@@ -251,6 +275,14 @@ ddsPLS2_App <- function(...) {
         text(x = 0,y=0,"Nothing to be plotted because model is empty.")
       }
     },height = sizeplot)
+
+    output$plottest <- renderPlot({
+      x_test <- X_test()
+      if(is.data.frame(x_test)){
+        x_test <- as.matrix(X_test())
+      }
+      diagnos <- predict(model(),x_test)
+    },height = 600,width = 600)
     #=======================================
     #=======================================
   }
