@@ -3,6 +3,8 @@
 #' @param x ddsPLS object
 #' @param X_test matrix, a test data-set. If is "NULL", the default value, the predicted values for the train test are returned
 #' @param legend.position character. Where to put the legend.
+#' @param cex float positive. Number indicating the amount by which plotting symbols should be scaled relative to the default. 1=default, 1.5 is 50% larger, 0.5 is 50% smaller, etc
+#' @param cex.text float positive. Number indicating the amount by which plotting text elements should be scaled relative to the default. 1=default, 1.5 is 50% larger, 0.5 is 50% smaller, etc
 #' @param ... Other parameters
 #'
 #' @export
@@ -11,7 +13,7 @@
 #'
 #' @useDynLib ddsPLS
 predict.ddsPLS <- function(x,X_test=NULL,doDiagnosis=T,
-                           legend.position="topright",...){
+                           legend.position="topright",cex=1,cex.text=1,...){
   getDiagnoses <- function(x,X_test,y_test_est){
     n_test <- nrow(X_test)
     n_train <- nrow(x$X)
@@ -67,22 +69,29 @@ predict.ddsPLS <- function(x,X_test=NULL,doDiagnosis=T,
       N <- 4
       par(mar=c(5, 4, 1, 0.5) + 0.1)
       layout(matrix(c(rep(2,N),4,rep(c(rep(1,N),3),N)),nrow = N+1,byrow = T))
-      plot(diagnoses$t$train,diagnoses$x$train,col="gray",pch=16,
-           cex=1/2,xlab="t",ylab=expression(hat(x)),
+      plot(diagnoses$t$train,diagnoses$x$train,col=1,pch=1,
+           cex=cex,xlab="",ylab="",
            xlim=xlim,ylim=ylim)
-      points(diagnoses$t$test,diagnoses$x$test,col="red",pch=16,cex=0.8)
+      title(xlab = expression(d[bold(t)](bold(t))),line = 2.5,cex.main=cex.text)
+      title(ylab = expression(d[bold(x)](hat(bold(x)),bold(x))),
+            line = 2.5,cex.main=cex.text)
+      points(diagnoses$t$test,diagnoses$x$test,col="red",pch=16,cex=cex)
       legend(legend.position,c("Train","Test"),
-             col=c("gray","red"),pch=16)
+             col=c(1,2),pch=c(1,16),cex=cex.text,pt.cex = cex)
       ##
-      par(mar=c(0,4.1,0,2.1))
+      par(mar=c(0,4.1,1,2.1))
       plot(density(diagnoses$t$train),xlim=range(unlist(diagnoses$t)),
-           col="gray",bty="n",xaxt="n",yaxt="n",xlab="",ylab="",main="")
+           col=1,bty="n",xaxt="n",yaxt="n",xlab="",ylab="",main="")
       points(density(diagnoses$t$test),type="l",col="red")
+      title(main = expression("Density of"~d[bold(t)](bold(t))),
+            line = -2,cex.main=cex.text)
       ##
       par(mar=c(5.1,0,4.1,0))
       dd <- density(diagnoses$x$train)
       plot(dd$y,dd$x,type="l",bty="n",xaxt="n",yaxt="n",xlab="",ylab="",main="",
-           ylim=range(unlist(diagnoses$x)),col="gray")
+           ylim=range(unlist(diagnoses$x)),col=1)
+      title(main = expression("Density of"~d[bold(x)](hat(bold(x)),bold(x))),
+            line = -2,cex.main=cex.text)
       dd <- density(diagnoses$x$test)
       points(dd$y,dd$x,type="l",col="red")
       ##

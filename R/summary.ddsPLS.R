@@ -13,6 +13,34 @@
 #' @seealso \code{\link{ddsPLS}}, \code{\link{plot.ddsPLS}}, \code{\link{predict.ddsPLS}}
 #'
 #' @useDynLib ddsPLS
+print.ddsPLS <- function(x, digits = max(3L, getOption("digits") - 3L), ...)
+{
+  cat("\nCall:\n",
+      paste(deparse(x$call), sep = "\n", collapse = "\n"), "\n\n", sep = "")
+  h_opt <- x$R
+  if(h_opt>0){
+    cat(paste("ddsPLS model built on",h_opt,"components.\n\n"))
+  }else{
+    cat(paste("No ddsPLS model built.\n\n"))
+  }
+  invisible(x)
+}
+
+#' Function to sum up bootstrap performance results of the ddsPLS algorithm
+#'
+#' @param x A ddsPLS object.
+#' @param return Wether or not to return the printed values, default to FALSE.
+#' @param plotSelection boolean. Whether plot the selection variables.
+#' @param las interger. Parameter for angle of variable names.
+#' @param cex.names real positive. Which factor zomm the variable names.
+#' @param digits integer indicating the number of decimal places (round) to be used.
+#' @param ... Other parameters to be taken into account.
+#'
+#' @export
+#'
+#' @seealso \code{\link{ddsPLS}}, \code{\link{plot.ddsPLS}}, \code{\link{predict.ddsPLS}}
+#'
+#' @useDynLib ddsPLS
 summary.ddsPLS <- function(x,return=FALSE,
                            plotSelection=FALSE,las=1,cex.names=1,
                            digits=2,...){

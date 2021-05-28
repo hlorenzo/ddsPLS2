@@ -97,6 +97,10 @@ ddsPLS2_App <- function(...) {
                               ),
                               tabPanel(
                                 title = "Test data results",
+                                numericInput("sizeplot3", "Size of plot (pixels)",600,min=200,max=3000,step = 100),
+                                selectInput('pos3', 'Legend position', pospos),
+                                numericInput("cex3", "Symbol size",1,min=0.01,max=5,step = 0.01),
+                                numericInput("cex32", "Text size",1,min=0.01,max=5,step = 0.01),
                                 plotOutput('plottest')
                               )
                             )
@@ -201,26 +205,26 @@ ddsPLS2_App <- function(...) {
       coco <- cor(dada1,dada$Y)
       layout(matrix(c(rep(1,6),2),1))
       cols <- c("#0000FF","#0303FF","#0606FF","#0909FF","#0C0CFF","#0F0FFF","#1212FF","#1515FF"
-        ,"#1818FF","#1B1BFF","#1E1EFF","#2121FF","#2424FF","#2727FF","#2A2AFF","#2D2DFF"
-        ,"#3030FF","#3333FF","#3636FF","#3A3AFF","#3D3DFF","#4040FF","#4343FF","#4646FF"
-        ,"#4949FF","#4C4CFF","#4F4FFF","#5252FF","#5555FF","#5858FF","#5B5BFF","#5E5EFF"
-        ,"#6161FF","#6464FF","#6767FF","#6A6AFF","#6D6DFF","#7070FF","#7474FF","#7777FF"
-        ,"#7A7AFF","#7D7DFF","#8080FF","#8383FF","#8686FF","#8989FF","#8C8CFF","#8F8FFF"
-        ,"#9292FF","#9595FF","#9898FF","#9B9BFF","#9E9EFF","#A1A1FF","#A4A4FF","#A7A7FF"
-        ,"#ABABFF","#AEAEFF","#B1B1FF","#B4B4FF","#B7B7FF","#BABAFF","#BDBDFF","#C0C0FF"
-        ,"#C3C3FF","#C6C6FF","#C9C9FF","#CCCCFF","#CFCFFF","#D2D2FF","#D5D5FF","#D8D8FF"
-        ,"#DBDBFF","#DEDEFF","#E1E1FF","#E5E5FF","#E8E8FF","#EBEBFF","#EEEEFF","#F1F1FF"
-        ,"#F4F4FF","#F7F7FF","#FAFAFF","#FDFDFF","#FFFDFD","#FFFAFA","#FFF7F7","#FFF4F4"
-        ,"#FFF1F1","#FFEEEE","#FFEBEB","#FFE8E8","#FFE5E5","#FFE1E1","#FFDEDE","#FFDBDB"
-        ,"#FFD8D8","#FFD5D5","#FFD2D2","#FFCFCF","#FFCCCC","#FFC9C9","#FFC6C6","#FFC3C3"
-        ,"#FFC0C0","#FFBDBD","#FFBABA","#FFB7B7","#FFB4B4","#FFB1B1","#FFAEAE","#FFABAB"
-        ,"#FFA7A7","#FFA4A4","#FFA1A1","#FF9E9E","#FF9B9B","#FF9898","#FF9595","#FF9292"
-        ,"#FF8F8F","#FF8C8C","#FF8989","#FF8686","#FF8383","#FF8080","#FF7D7D","#FF7A7A"
-        ,"#FF7777","#FF7474","#FF7070","#FF6D6D","#FF6A6A","#FF6767","#FF6464","#FF6161"
-        ,"#FF5E5E","#FF5B5B","#FF5858","#FF5555","#FF5252","#FF4F4F","#FF4C4C","#FF4949"
-        ,"#FF4646","#FF4343","#FF4040","#FF3D3D","#FF3A3A","#FF3636","#FF3333","#FF3030"
-        ,"#FF2D2D","#FF2A2A","#FF2727","#FF2424","#FF2121","#FF1E1E","#FF1B1B","#FF1818"
-        ,"#FF1515","#FF1212","#FF0F0F","#FF0C0C","#FF0909","#FF0606","#FF0303","#FF0000")
+                ,"#1818FF","#1B1BFF","#1E1EFF","#2121FF","#2424FF","#2727FF","#2A2AFF","#2D2DFF"
+                ,"#3030FF","#3333FF","#3636FF","#3A3AFF","#3D3DFF","#4040FF","#4343FF","#4646FF"
+                ,"#4949FF","#4C4CFF","#4F4FFF","#5252FF","#5555FF","#5858FF","#5B5BFF","#5E5EFF"
+                ,"#6161FF","#6464FF","#6767FF","#6A6AFF","#6D6DFF","#7070FF","#7474FF","#7777FF"
+                ,"#7A7AFF","#7D7DFF","#8080FF","#8383FF","#8686FF","#8989FF","#8C8CFF","#8F8FFF"
+                ,"#9292FF","#9595FF","#9898FF","#9B9BFF","#9E9EFF","#A1A1FF","#A4A4FF","#A7A7FF"
+                ,"#ABABFF","#AEAEFF","#B1B1FF","#B4B4FF","#B7B7FF","#BABAFF","#BDBDFF","#C0C0FF"
+                ,"#C3C3FF","#C6C6FF","#C9C9FF","#CCCCFF","#CFCFFF","#D2D2FF","#D5D5FF","#D8D8FF"
+                ,"#DBDBFF","#DEDEFF","#E1E1FF","#E5E5FF","#E8E8FF","#EBEBFF","#EEEEFF","#F1F1FF"
+                ,"#F4F4FF","#F7F7FF","#FAFAFF","#FDFDFF","#FFFDFD","#FFFAFA","#FFF7F7","#FFF4F4"
+                ,"#FFF1F1","#FFEEEE","#FFEBEB","#FFE8E8","#FFE5E5","#FFE1E1","#FFDEDE","#FFDBDB"
+                ,"#FFD8D8","#FFD5D5","#FFD2D2","#FFCFCF","#FFCCCC","#FFC9C9","#FFC6C6","#FFC3C3"
+                ,"#FFC0C0","#FFBDBD","#FFBABA","#FFB7B7","#FFB4B4","#FFB1B1","#FFAEAE","#FFABAB"
+                ,"#FFA7A7","#FFA4A4","#FFA1A1","#FF9E9E","#FF9B9B","#FF9898","#FF9595","#FF9292"
+                ,"#FF8F8F","#FF8C8C","#FF8989","#FF8686","#FF8383","#FF8080","#FF7D7D","#FF7A7A"
+                ,"#FF7777","#FF7474","#FF7070","#FF6D6D","#FF6A6A","#FF6767","#FF6464","#FF6161"
+                ,"#FF5E5E","#FF5B5B","#FF5858","#FF5555","#FF5252","#FF4F4F","#FF4C4C","#FF4949"
+                ,"#FF4646","#FF4343","#FF4040","#FF3D3D","#FF3A3A","#FF3636","#FF3333","#FF3030"
+                ,"#FF2D2D","#FF2A2A","#FF2727","#FF2424","#FF2121","#FF1E1E","#FF1B1B","#FF1818"
+                ,"#FF1515","#FF1212","#FF0F0F","#FF0C0C","#FF0909","#FF0606","#FF0303","#FF0000")
       image(coco,xaxt="n",yaxt="n",main=main,zlim=c(-1,1),col=cols)
       if(nrow(coco)>1){
         axis(1,at = (0:(nrow(coco)-1) )/(nrow(coco)-1),labels = colnames(dada1))
@@ -253,10 +257,14 @@ ddsPLS2_App <- function(...) {
     output$summaryShort <- renderTable({
       req(model())
       R <- model()$R
-      expl_variance <- round(model()$varExplained$Cumu[R])
-      out <- matrix(c(R,expl_variance),nrow = 1)
-      colnames(out) <- c("Components","Explained variance (%)")
-      # paste("ddsPLS model built on ",R," component(s).\n Explains ",expl_variance,"% of variance of Y",sep="")
+      if(R>0){
+        expl_variance <- round(model()$varExplained$Cumu[R])
+        out <- matrix(c(R,expl_variance),nrow = 1)
+        colnames(out) <- c("Components","Explained variance (%)")
+        # paste("ddsPLS model built on ",R," component(s).\n Explains ",expl_variance,"% of variance of Y",sep="")
+      }else{
+        out <- "No component built"
+      }
       out
     })
 
@@ -276,13 +284,18 @@ ddsPLS2_App <- function(...) {
       }
     },height = sizeplot)
 
+    sizeplot3 <- reactive({
+      input$sizeplot3
+    })
+
     output$plottest <- renderPlot({
       x_test <- X_test()
       if(is.data.frame(x_test)){
         x_test <- as.matrix(X_test())
       }
-      diagnos <- predict(model(),x_test)
-    },height = 600,width = 600)
+      diagnos <- predict(model(),x_test,legend.position =input$pos3,
+                         cex=input$cex3,cex.text=input$cex32)
+    },height = sizeplot3,width = sizeplot3)
     #=======================================
     #=======================================
   }

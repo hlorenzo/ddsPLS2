@@ -98,7 +98,7 @@ ddsPLS <- function(X,Y,
     }
     mean(unlist(lapply(1:q,function(j){getLambda0(xSC,ySC[,j],n,p)})))
   }
-
+  call <- match.call()
   n <- nrow(Y)
   p <- ncol(X)
   q <- ncol(Y)
@@ -356,6 +356,7 @@ ddsPLS <- function(X,Y,
       selX <- (rowSums(abs(out$model$B))>1e-9)*1
       selY <- (colSums(abs(out$model$B))>1e-9)*1
       out$Selection <- list(X=which(selX==1),Y=which(selY==1))
+      out$call <- call
     }
     if (verbose & h>0) {
       plot(out)
@@ -442,6 +443,7 @@ ddsPLS <- function(X,Y,
     selX <- (rowSums(abs(out$model$B))>1e-9)*1
     selY <- (colSums(abs(out$model$B))>1e-9)*1
     out$Selection <- list(X=which(selX==1),Y=which(selY==1))
+    out$call <- call
   }
   return(out)
 }
