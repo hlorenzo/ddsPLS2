@@ -74,6 +74,7 @@ ddsPLS2_App <- function(...) {
                                 radioButtons("quote", "Quote",choices = c(None = "","Double Quote" = '"',"Single Quote" = "'"),selected = '"', inline=T),
                                 tags$hr(),
                                 h2("General structure"),
+                                textOutput("files_n"),
                                 tableOutput("files"),
                                 tags$hr(),
                                 h2("Block summary"),
@@ -149,6 +150,7 @@ ddsPLS2_App <- function(...) {
       }
       k <- K+1
       outputFiles[k,] <- c("Y",input$fileY$name,q)
+      output$files_n <- renderText(paste("Number of observations:",nrow(dfY)))
       output$files <- renderTable(outputFiles)
       blockNames <- outputFiles[,1]
       updateSelectInput(session, "inSelect",
