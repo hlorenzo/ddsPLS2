@@ -58,8 +58,6 @@ bootstrapWrap <- function(U,V,X,Y,lambdas,lambda_prev,
 #' Default to \code{seq(0,1,length.out = 30)}.
 #' @param n_B integer, the number of to be simulated bootstrap samples. Default to \code{50}.
 #' @param n_lambdas integer, the number of lambda values. Taken into account only if \code{lambdas} is \code{NULL}. Default to 100.
-#' @param minBootProp real, between 0 and 1, the minimum proportion of non null
-#' components built to accept the current lambda value. Default to \code{0.0}.
 #' @param lowQ2  real, the minimum value of Q^2_B to accept the
 #' current lambda value. Default to \code{0.0}.
 #' @param NCORES integer, the number of cores used. Default to \code{1}.
@@ -87,7 +85,6 @@ bootstrapWrap <- function(U,V,X,Y,lambdas,lambda_prev,
 ddsPLS <- function(X,Y,
                    doBoot=TRUE,
                    lambdas=NULL,n_B=50,n_lambdas=100,
-                   minBootProp=0.0,
                    lowQ2=0.0,NCORES=1,errorMin=1e-9,verbose=FALSE){
 
   getLambdas <- function(xSC,ySC,n,p,q){
@@ -206,7 +203,6 @@ ddsPLS <- function(X,Y,
       Results$R2mean_diff_Q2mean[[h+1]] <- Results$R2mean[[h+1]]-Results$Q2mean[[h+1]]
       TEST <- (Results$Q2hmean[[h+1]]>lowQ2)*
         (Results$Q2mean[[h+1]]>Q2_previous)*
-        ((Results$PropQ2hPos[[h+1]]>minBootProp)==1)*
         (lambdas>=lambda0[h+1])==1
       nb_ValsOk = sum(TEST)
       test_lambdas[[h+1]] <- TEST
