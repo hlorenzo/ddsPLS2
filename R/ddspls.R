@@ -86,7 +86,7 @@ bootstrapWrap <- function(U,V,X,Y,lambdas,lambda_prev,
 #' @useDynLib ddsPLS
 ddsPLS <- function(X,Y,
                    doBoot=TRUE,
-                   lambdas=seq(0,1,length.out = 30),n_B=50,n_lambdas=100,
+                   lambdas=NULL,n_B=50,n_lambdas=100,
                    minBootProp=0.0,
                    lowQ2=0.0,NCORES=1,errorMin=1e-9,verbose=FALSE){
 
@@ -128,7 +128,7 @@ ddsPLS <- function(X,Y,
   useL0 <- F
   lambda0 <- NULL
   if(is.null(lambdas)){
-    lambdas <- seq(0,1,length.out = n_lambdas)
+    lambdas <- seq(0,max(abs(cov(X_init,Y_init))),length.out = n_lambdas)
     lambda0 <- c(lambda0,getLambdas(X_init,Y_init,n,p,q))
     useL0 <- T
   }else{
@@ -206,7 +206,8 @@ ddsPLS <- function(X,Y,
       Results$R2mean_diff_Q2mean[[h+1]] <- Results$R2mean[[h+1]]-Results$Q2mean[[h+1]]
       TEST <- (Results$Q2hmean[[h+1]]>lowQ2)*
         (Results$Q2mean[[h+1]]>Q2_previous)*
-        (Results$PropQ2hPos[[h+1]]>minBootProp)==1
+        ((Results$PropQ2hPos[[h+1]]>minBootProp)==1)*
+        (lambdas>=lambda0[h+1])==1
       nb_ValsOk = sum(TEST)
       test_lambdas[[h+1]] <- TEST
       # resOUT <- NULL
@@ -327,6 +328,7 @@ ddsPLS <- function(X,Y,
     }else{
       out$model = NULL
       out$results <- NULL
+      out$resultsNotBuilt <- Results
     }
     out$R = h
     out$lambda = lambda_sol

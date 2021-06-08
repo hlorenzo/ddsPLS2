@@ -10,7 +10,7 @@ Description: A sparse PLS implementation which uses soft-thresholded
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-Depends: foreach, shiny
+Depends: foreach, shiny, doParallel
 Imports: Rcpp (>= 1.0.5)
 LinkingTo: Rcpp, RcppEigen
 Suggests: 
