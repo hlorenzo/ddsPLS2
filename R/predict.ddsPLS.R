@@ -2,6 +2,7 @@
 #'
 #' @param x ddsPLS object
 #' @param X_test matrix, a test data-set. If is "NULL", the default value, the predicted values for the train test are returned
+#' @param toPlot boolean, wether or not to plot the extreme value test plot. Default to `TRUE`.
 #' @param legend.position character. Where to put the legend.
 #' @param cex float positive. Number indicating the amount by which plotting symbols should be scaled relative to the default. 1=default, 1.5 is 50% larger, 0.5 is 50% smaller, etc
 #' @param cex.text float positive. Number indicating the amount by which plotting text elements should be scaled relative to the default. 1=default, 1.5 is 50% larger, 0.5 is 50% smaller, etc
@@ -12,7 +13,7 @@
 #' @seealso \code{\link{ddsPLS}}, \code{\link{plot.ddsPLS}}, \code{\link{summary.ddsPLS}}
 #'
 #' @useDynLib ddsPLS
-predict.ddsPLS <- function(x,X_test=NULL,doDiagnosis=T,
+predict.ddsPLS <- function(x,X_test=NULL,toPlot=FALSE,doDiagnosis=T,
                            legend.position="topright",cex=1,cex.text=1,...){
   getDiagnoses <- function(x,X_test,y_test_est){
     n_test <- nrow(X_test)
@@ -52,50 +53,56 @@ predict.ddsPLS <- function(x,X_test=NULL,doDiagnosis=T,
     dist_Mahalanobis_test <- (rowMeans(
       epsilon_X_test^2*matrix(rep(sigma_x_Inv,n_test),nrow = n_test,byrow = T)^2))
     list(# y=list(train=dist_y_Mahalanobis_train,test=dist_y_Mahalanobis_test),
-         t=list(train=dist_score_Mahalanobis_train,test=dist_score_Mahalanobis_test),
-         x=list(train=dist_Mahalanobis_train,test=dist_Mahalanobis_test))
+      t=list(train=dist_score_Mahalanobis_train,test=dist_score_Mahalanobis_test),
+      x=list(train=dist_Mahalanobis_train,test=dist_Mahalanobis_test))
   }
   diagnoses <- NULL
   if(is.null(X_test)){
     y_est <- x$Y_est
   }else{
     n_test <- nrow(X_test)
-    y_est <- (X_test-matrix(rep(x$model$muX,n_test),nrow = n_test,byrow = T))%*%x$model$B
-    y_est <- y_est + matrix(rep(x$model$muY,n_test),nrow = n_test,byrow = T)
-    if(doDiagnosis){
+    if(x$R==0){
+      y_est <- matrix(rep(x$model$muY,n_test),nrow = n_test,byrow = T)
+    }else{
+      y_est <- (X_test-matrix(rep(x$model$muX,n_test),nrow = n_test,byrow = T))%*%x$model$B
+      y_est <- y_est + matrix(rep(x$model$muY,n_test),nrow = n_test,byrow = T)
+    }
+    if(doDiagnosis & x$R>0){
       diagnoses <- getDiagnoses(x,X_test,y_est)
-      xlim <- range(c(diagnoses$t$train,diagnoses$t$test))
-      ylim <- range(c(diagnoses$x$train,diagnoses$x$test))
-      N <- 4
-      par(mar=c(5, 4, 1, 0.5) + 0.1)
-      layout(matrix(c(rep(2,N),4,rep(c(rep(1,N),3),N)),nrow = N+1,byrow = T))
-      plot(diagnoses$t$train,diagnoses$x$train,col=1,pch=1,
-           cex=cex,xlab="",ylab="",
-           xlim=xlim,ylim=ylim)
-      title(xlab = expression(d[bold(t)](bold(t))),line = 2.5,cex.main=cex.text)
-      title(ylab = expression(d[bold(x)](hat(bold(x)),bold(x))),
-            line = 2.5,cex.main=cex.text)
-      points(diagnoses$t$test,diagnoses$x$test,col="red",pch=16,cex=cex)
-      legend(legend.position,c("Train","Test"),
-             col=c(1,2),pch=c(1,16),cex=cex.text,pt.cex = cex)
-      ##
-      par(mar=c(0,4.1,1,2.1))
-      plot(density(diagnoses$t$train),xlim=range(unlist(diagnoses$t)),
-           col=1,bty="n",xaxt="n",yaxt="n",xlab="",ylab="",main="")
-      points(density(diagnoses$t$test),type="l",col="red")
-      title(main = expression("Density of"~d[bold(t)](bold(t))),
-            line = -2,cex.main=cex.text)
-      ##
-      par(mar=c(5.1,0,4.1,0))
-      dd <- density(diagnoses$x$train)
-      plot(dd$y,dd$x,type="l",bty="n",xaxt="n",yaxt="n",xlab="",ylab="",main="",
-           ylim=range(unlist(diagnoses$x)),col=1)
-      title(main = expression("Density of"~d[bold(x)](hat(bold(x)),bold(x))),
-            line = -2,cex.main=cex.text)
-      dd <- density(diagnoses$x$test)
-      points(dd$y,dd$x,type="l",col="red")
-      ##
-      plot(0,0,col="white",bty="n",xaxt="n",yaxt="n",xlab="",ylab="")
+      if(toPlot){
+        xlim <- range(c(diagnoses$t$train,diagnoses$t$test))
+        ylim <- range(c(diagnoses$x$train,diagnoses$x$test))
+        N <- 4
+        par(mar=c(5, 4, 1, 0.5) + 0.1)
+        layout(matrix(c(rep(2,N),4,rep(c(rep(1,N),3),N)),nrow = N+1,byrow = T))
+        plot(diagnoses$t$train,diagnoses$x$train,col=1,pch=1,
+             cex=cex,xlab="",ylab="",
+             xlim=xlim,ylim=ylim)
+        title(xlab = expression(d[bold(t)](bold(t))),line = 2.5,cex.main=cex.text)
+        title(ylab = expression(d[bold(x)](hat(bold(x)),bold(x))),
+              line = 2.5,cex.main=cex.text)
+        points(diagnoses$t$test,diagnoses$x$test,col="red",pch=16,cex=cex)
+        legend(legend.position,c("Train","Test"),
+               col=c(1,2),pch=c(1,16),cex=cex.text,pt.cex = cex)
+        ##
+        par(mar=c(0,4.1,1,2.1))
+        plot(density(diagnoses$t$train),xlim=range(unlist(diagnoses$t)),
+             col=1,bty="n",xaxt="n",yaxt="n",xlab="",ylab="",main="")
+        points(density(diagnoses$t$test),type="l",col="red")
+        title(main = expression("Density of"~d[bold(t)](bold(t))),
+              line = -2,cex.main=cex.text)
+        ##
+        par(mar=c(5.1,0,4.1,0))
+        dd <- density(diagnoses$x$train)
+        plot(dd$y,dd$x,type="l",bty="n",xaxt="n",yaxt="n",xlab="",ylab="",main="",
+             ylim=range(unlist(diagnoses$x)),col=1)
+        title(main = expression("Density of"~d[bold(x)](hat(bold(x)),bold(x))),
+              line = -2,cex.main=cex.text)
+        dd <- density(diagnoses$x$test)
+        points(dd$y,dd$x,type="l",col="red")
+        ##
+        plot(0,0,col="white",bty="n",xaxt="n",yaxt="n",xlab="",ylab="")
+      }
     }
   }
   list(y_est=y_est,

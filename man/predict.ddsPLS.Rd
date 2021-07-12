@@ -7,6 +7,7 @@
 \method{predict}{ddsPLS}(
   x,
   X_test = NULL,
+  toPlot = FALSE,
   doDiagnosis = T,
   legend.position = "topright",
   cex = 1,
@@ -18,6 +19,8 @@
 \item{x}{ddsPLS object}
 
 \item{X_test}{matrix, a test data-set. If is "NULL", the default value, the predicted values for the train test are returned}
+
+\item{toPlot}{boolean, wether or not to plot the extreme value test plot. Default to `TRUE`.}
 
 \item{legend.position}{character. Where to put the legend.}
 

@@ -312,6 +312,14 @@ ddsPLSCpp bootstrap_pls_CT_Cpp(const Eigen::MatrixXd X_init,const Eigen::MatrixX
   Eigen::MatrixXd x_r = Eigen::MatrixXd::Zero(n,p);
   Eigen::MatrixXd y_r = Eigen::MatrixXd::Zero(n,q);
   Eigen::MatrixXd B_youyou = Eigen::MatrixXd::Zero(p,q);
+  ddsPLSCpp out;
+  out.B = Eigen::MatrixXd::Zero(N_lambdas*p,q);
+  out.U = Eigen::MatrixXd::Zero(1,N_lambdas*p);
+  out.U_star = Eigen::MatrixXd::Zero(1,N_lambdas*p);
+  out.V = Eigen::MatrixXd::Zero(1,N_lambdas*q);
+  out.P = Eigen::MatrixXd::Zero(1,N_lambdas*p);
+  out.C = Eigen::MatrixXd::Zero(1,N_lambdas*q);
+  out.t = Eigen::MatrixXd::Zero(1,N_lambdas*n);
   int r=0;
   double sdyi=0.0,sdxj=0.0;
   Eigen::MatrixXd diff_B(p,q);
@@ -556,6 +564,13 @@ ddsPLSCpp bootstrap_pls_CT_Cpp(const Eigen::MatrixXd X_init,const Eigen::MatrixX
             }
           }
         }
+        out.B.block(iLam*p,0,p,q) = B_all;
+        out.t.block(0,iLam*n,1,n) = t_r.block(0,0,n,1).transpose();
+        out.U.block(0,iLam*p,1,p) = u_il.block(0,0,p,1).transpose();
+        out.U_star.block(0,iLam*p,1,p) = U_star_cl.transpose();
+        out.V.block(0,iLam*q,1,q) = V_il.block(0,0,q,1).transpose();
+        out.P.block(0,iLam*p,1,p) = bt.transpose();
+        out.C.block(0,iLam*q,1,q) = D.block(0,r,q,1).transpose();
         // Create the prediction matrices and metrics
         diff_B = B_all - B_youyou;
         y_train_pred = X_train*B_all;
@@ -586,7 +601,6 @@ ddsPLSCpp bootstrap_pls_CT_Cpp(const Eigen::MatrixXd X_init,const Eigen::MatrixX
     }
     testGood = false;
   }
-  ddsPLSCpp out;
   out.R2 = vars_expl; // R^2
   out.R2h = vars_expl_h; // R^2_h
   if (doBoot==true) {
@@ -672,6 +686,14 @@ Rcpp::List  bootstrap_Rcpp(const Eigen::MatrixXd U,const Eigen::MatrixXd V,
   Eigen::MatrixXd R2h = Eigen::MatrixXd(n_B,N_lambdas);
   Eigen::MatrixXd Q2 = Eigen::MatrixXd(n_B,N_lambdas);
   Eigen::MatrixXd Q2h = Eigen::MatrixXd(n_B,N_lambdas);
+  Eigen::MatrixXd Uout = Eigen::MatrixXd::Zero(n_B,N_lambdas*p);
+  Eigen::MatrixXd tt = Eigen::MatrixXd::Zero(n_B,N_lambdas*n);
+  Eigen::MatrixXd Ustarout = Eigen::MatrixXd::Zero(n_B,N_lambdas*p);
+  Eigen::MatrixXd Vout = Eigen::MatrixXd::Zero(n_B,N_lambdas*q);
+  Eigen::MatrixXd P = Eigen::MatrixXd::Zero(n_B,N_lambdas*p);
+  Eigen::MatrixXd C = Eigen::MatrixXd::Zero(n_B,N_lambdas*q);
+  Eigen::MatrixXd B = Eigen::MatrixXd::Zero(N_lambdas*p,q*n_B);
+  // Rcpp::List B;
   ddsPLSCpp res;
   for (int i = 0u; i < n_B; ++i) {
     res = bootstrap_pls_CT_Cpp(X,Y,lambdas,lambda_prev,U,V,n,p,q,N_lambdas,lambda0,doBoot,R);
@@ -679,12 +701,27 @@ Rcpp::List  bootstrap_Rcpp(const Eigen::MatrixXd U,const Eigen::MatrixXd V,
     R2h.block(i,0,1,N_lambdas) = res.R2h.transpose();
     Q2.block(i,0,1,N_lambdas) = res.Q2.transpose();
     Q2h.block(i,0,1,N_lambdas) = res.Q2h.transpose();
+    tt.block(i,0,1,n*N_lambdas) = res.t.transpose();
+    Uout.block(i,0,1,p*N_lambdas) = res.U.transpose();
+    Ustarout.block(i,0,1,p*N_lambdas) = res.U_star.transpose();
+    Vout.block(i,0,1,q*N_lambdas) = res.V.transpose();
+    P.block(i,0,1,p*N_lambdas) = res.P.transpose();
+    C.block(i,0,1,q*N_lambdas) = res.C.transpose();
+    B.block(0,i*q,p*N_lambdas,q) = res.B;
   }
   Rcpp::List out;
   out["R2"] = R2;
   out["R2h"] = R2h;
   out["Q2"] = Q2;
   out["Q2h"] = Q2h;
+  out["lambdas"] = lambdas;
+  out["t"] = tt;
+  out["U"] = Uout;
+  out["U_star"] = Ustarout;
+  out["V"] = Vout;
+  out["P"] = P;
+  out["C"] = C;
+  out["B"] = B;
   out["lambdas"] = lambdas;
   return out;
 }

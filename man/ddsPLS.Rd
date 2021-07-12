@@ -7,6 +7,7 @@
 ddsPLS(
   X,
   Y,
+  criterion = "diffR2Q2",
   doBoot = TRUE,
   lambdas = NULL,
   n_B = 50,
@@ -21,6 +22,8 @@ ddsPLS(
 \item{X}{matrix, the covariate matrix (n,p).}
 
 \item{Y}{matrix, the response matrix (n,q).}
+
+\item{criterion}{character, whether \code{diffR2Q2} to be minimized, default, or \code{Q2} to be maximized.}
 
 \item{doBoot}{logical, whether performing bootstrap operations, default to \code{TRUE}. If equal to
 \itemize{

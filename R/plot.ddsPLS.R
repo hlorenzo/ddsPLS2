@@ -56,17 +56,31 @@ plot.ddsPLS <- function(x,type="criterion",
       PropQ2hPos <- matrix(x$results$PropQ2hPos[[1]],ncol = 1)
     }
     if(type %in% c("total","criterion")){
-      # Plot of R2-Q2
-      matplot(lambdas,R2mean_diff_Q2mean,type = "l",ylab="",xlab=expression(lambda),
-              main=bquote(bar(R)[B]^2-bar(Q)[B]^2))
-      for(s in 1:h_opt){
-        points(lambdas,R2mean_diff_Q2mean[,s],type = "p",pch=16,cex=x$lambda_optim[[s]],col=s)
-        points(x$lambda[s],R2mean_diff_Q2mean[which(lambdas==x$lambda[s]),s],pch=1,cex=2,col=s)
+      if(x$criterion=="diffR2Q2"){
+        # Plot of R2-Q2
+        matplot(lambdas,R2mean_diff_Q2mean,type = "l",ylab="",xlab=expression(lambda),
+                main=bquote(bar(R)[B]^2-bar(Q)[B]^2))
+        for(s in 1:h_opt){
+          points(lambdas,R2mean_diff_Q2mean[,s],type = "p",pch=16,cex=x$lambda_optim[[s]],col=s)
+          points(x$lambda[s],R2mean_diff_Q2mean[which(lambdas==x$lambda[s]),s],pch=1,cex=2,col=s)
+        }
+        legend(legend.position,paste("Comp.",1:h_opt," (",round(x$varExplained$Comp),"%)",sep=""),
+               col = 1:h_opt,pch=16,bty = "n",
+               title = paste("Total explained variance ",round(x$varExplained$Cumu)[h_opt],"%",sep=""))
+      }else{
+        # Plot of Q2
+        matplot(lambdas,Q2hmean,type = "l",ylab="",xlab=expression(lambda),
+                main=bquote(bar(Q)[B]^2))
+        for(s in 1:h_opt){
+          points(lambdas,Q2hmean[,s],type = "p",pch=16,cex=x$lambda_optim[[s]],col=s)
+          points(x$lambda[s],Q2hmean[which(lambdas==x$lambda[s]),s],pch=1,cex=2,col=s)
+        }
+        legend(legend.position,paste("Comp.",1:h_opt," (",round(x$varExplained$Comp),"%)",sep=""),
+               col = 1:h_opt,pch=16,bty = "n",
+               title = paste("Total explained variance ",round(x$varExplained$Cumu)[h_opt],"%",sep=""))
       }
-      legend(legend.position,paste("Comp.",1:h_opt," (",round(x$varExplained$Comp),"%)",sep=""),
-             col = 1:h_opt,pch=16,bty = "n",
-             title = paste("Total explained variance ",round(x$varExplained$Cumu)[h_opt],"%",sep=""))
-      ;got_inside <- TRUE}
+      got_inside <- TRUE
+    }
     if(type %in% c("prop")){
       # Plot of Prop of positive Q2h
       matplot(lambdas,PropQ2hPos,type = "l",ylab="",xlab=expression(lambda),
@@ -185,7 +199,7 @@ plot.ddsPLS <- function(x,type="criterion",
       legend(legend.position,paste("Comp.",1:h_opt," (",round(x$varExplained$Comp),"%)",sep=""),
              col = 1:h_opt,pch=16,bty = "n",
              title = paste("Total explained variance ",round(x$varExplained$Cumu)[h_opt],"%",sep=""))
-    ;got_inside <- TRUE}
+      ;got_inside <- TRUE}
     if(type == "weightX" | type == "weightY"){
       got_inside <- TRUE
       q <- ncol(x$Y_obs)
@@ -291,7 +305,7 @@ plot.ddsPLS <- function(x,type="criterion",
     }
     if(!got_inside){
       cat(
-      "Please select a correct type of vizu among `criterion` (default), `total`,
+        "Please select a correct type of vizu among `criterion` (default), `total`,
       `prop`, `predict`, `Q2r`, `Q2`, `R2r`, `R2`, `weightX`, `weightY`,
       `loadingX` or `loadingY`.")
     }

@@ -18,7 +18,7 @@ bootstrapWrap(
   p,
   q,
   n_lambdas,
-  lambda0
+  lambda0.
 )
 }
 \arguments{
