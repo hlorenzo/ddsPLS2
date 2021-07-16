@@ -12,6 +12,7 @@ ddsPLS(
   lambdas = NULL,
   n_B = 50,
   n_lambdas = 100,
+  lambda_roof = NULL,
   lowQ2 = 0,
   NCORES = 1,
   errorMin = 1e-09,

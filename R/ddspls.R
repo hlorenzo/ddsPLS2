@@ -89,12 +89,12 @@ ddsPLS <- function(X,Y,criterion="diffR2Q2",
                    lowQ2=0.0,NCORES=1,errorMin=1e-9,verbose=FALSE){
 
   getLambdas <- function(xSC,ySC,n,p,q){
-    getLambda0 <- function(xSC,ySC,n,p){
+    getLambda0 <- function(xSC,ySC,n,p,q){
       Sig_est <- matrix(rep(cov(xSC,ySC),n),nrow = n,byrow = T)
       theta <- colMeans((xSC*matrix(rep(ySC,p),n,byrow = F)-Sig_est)^2)
-      mean(sqrt(log(p)*theta/n))
+      mean(sqrt(log(max(p,q))*theta/n))
     }
-    mean(unlist(lapply(1:q,function(j){getLambda0(xSC,ySC[,j],n,p)})))
+    mean(unlist(lapply(1:q,function(j){getLambda0(xSC,ySC[,j],n,p,q)})))
   }
   if(criterion %in% c("diffR2Q2","Q2")){
     call <- match.call()
