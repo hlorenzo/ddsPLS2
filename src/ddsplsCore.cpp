@@ -117,6 +117,7 @@ oneComponent do_one_componentCpp(const Eigen::MatrixXd x0,const Eigen::MatrixXd 
   Eigen::VectorXd V_svd = Eigen::VectorXd::Zero(q);
   Eigen::VectorXd t = Eigen::VectorXd::Zero(n);
   double coefIJ=0.0,value=0.0;
+  double mu=1.0;
   int countY = 0u;
   int countX = 0u;
   if (countNoNullY>0){

@@ -84,7 +84,7 @@ bootstrapWrap <- function(U,V,X,Y,lambdas,lambda_prev,
 #'
 #' @useDynLib ddsPLS
 ddsPLS <- function(X,Y,criterion="diffR2Q2",
-                   doBoot=TRUE,
+                   doBoot=TRUE,LD=F,
                    lambdas=NULL,n_B=50,n_lambdas=100,lambda_roof=NULL,
                    lowQ2=0.0,NCORES=1,errorMin=1e-9,verbose=FALSE){
 
@@ -104,12 +104,20 @@ ddsPLS <- function(X,Y,criterion="diffR2Q2",
     # Standardize X and Y train and test.
     sdY <- apply(Y,2,sd)
     muY <- apply(Y,2,mean)
+    id_na_y_mean <- which(is.na(sdY))
+    if(length(id_na_y_mean)>0){
+      muY[id_na_y_mean] = sdY[id_na_y_mean] <- 0
+    }
     Y_init = scale(Y);
     Y_init[which(is.na(Y_init))] <- 0
     RSS0 <- sum(scale(Y,scale = F)^2)
     RSS0_y <- apply(Y,2,function(yy){sum(scale(yy,scale = F)^2)})
     sdX <- apply(X,2,sd)
     muX <- apply(X,2,mean)
+    id_na_x_mean <- which(is.na(sdX))
+    if(length(id_na_x_mean)>0){
+      muX[id_na_x_mean] = sdX[id_na_x_mean] <- 0
+    }
     X_init = scale(X);
     X_init[which(is.na(X_init))] <- 0
     sd_y_x_inv <- matrix(0,p,q)
@@ -132,7 +140,11 @@ ddsPLS <- function(X,Y,criterion="diffR2Q2",
       }else{
         lambdas <- seq(0,lambda_roof,length.out = n_lambdas+1)[-n_lambdas-1]
       }
-      lambda0 <- c(lambda0,getLambdas(X_init,Y_init,n,p,q))
+      if(!LD){
+        lambda0 <- c(lambda0,getLambdas(X_init,Y_init,n,p,q))
+      }else{
+        lambda0 <- 0
+      }
       useL0 <- T
     }else{
       lambda0 <- 0
@@ -223,10 +235,10 @@ ddsPLS <- function(X,Y,criterion="diffR2Q2",
         # resOUT <- NULL
         test_t2 <- F
         if (nb_ValsOk>0){
-          if(criterion=="diffR2Q2"){
+          if(criterion=="diffR2Q2" & !LD){
             bestVal = min(Results$R2mean_diff_Q2mean[[h+1]][TEST])
             bestID = which(Results$R2mean_diff_Q2mean[[h+1]]==bestVal)[1]
-          }else if(criterion=="Q2"){
+          }else if(criterion=="Q2" | LD){
             bestVal = max(Results$Q2hmean[[h+1]][TEST])
             bestID = which(Results$Q2hmean[[h+1]]==bestVal)[1]
           }
@@ -254,6 +266,17 @@ ddsPLS <- function(X,Y,criterion="diffR2Q2",
             resMozna -> resOUT
             resMozna <- NULL
             h <- h + 1
+            for(hh in 1:h){
+              P_test <- resOUT$P[,hh]
+              if(which.max(P_test)!=which.max(abs(P_test))){
+                resOUT$P[,hh] <- -resOUT$P[,hh]
+                resOUT$C[,hh] <- -resOUT$C[,hh]
+                resOUT$t[,hh] <- -resOUT$t[,hh]
+                resOUT$V[,hh] <- -resOUT$V[,hh]
+                resOUT$U[,hh] <- -resOUT$U[,hh]
+                resOUT$U_star[,hh] <- -resOUT$U_star[,hh]
+              }
+            }
             Q2Best[h] = Results$Q2mean[[h]][bestID]
             Q2hBest[h] = Results$Q2hmean[[h]][bestID]
             R2Best[h] = Results$R2mean[[h]][bestID]
