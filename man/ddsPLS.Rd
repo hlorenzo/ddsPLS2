@@ -9,10 +9,12 @@ ddsPLS(
   Y,
   criterion = "diffR2Q2",
   doBoot = TRUE,
+  LD = F,
   lambdas = NULL,
   n_B = 50,
   n_lambdas = 100,
   lambda_roof = NULL,
+  gamma = NULL,
   lowQ2 = 0,
   NCORES = 1,
   errorMin = 1e-09,
@@ -24,27 +26,35 @@ ddsPLS(
 
 \item{Y}{matrix, the response matrix (n,q).}
 
-\item{criterion}{character, whether \code{diffR2Q2} to be minimized, default, or \code{Q2} to be maximized.}
+\item{criterion}{character, whether \code{diffR2Q2} to be minimized, default,
+or \code{Q2} to be maximized.}
 
-\item{doBoot}{logical, whether performing bootstrap operations, default to \code{TRUE}. If equal to
-\itemize{
-  \item{\code{FALSE}, a model with is built on the parameters \code{lambda} and the number of components is the length of this vector.
-  In that context, the parameter \code{n_B} is ignored.}
-  \item{\code{TRUE}, the ddsPLS algorithm, through bootstrap validation, is started using \code{lambda} as a grid and \code{n_B} as
+\item{doBoot}{logical, whether performing bootstrap operations, default to
+\code{TRUE}. If equal to
+\code{FALSE}, a model with is built on the parameters \code{lambda} and the
+ number of components is the length of this vector.
+  In that context, the parameter \code{n_B} is ignored. If equal to
+   \code{TRUE}, the ddsPLS algorithm, through bootstrap validation,
+    is started using \code{lambda} as a grid and \code{n_B} as
   the total number of bootstrap samples to simulate per component.}
-}}
 
-\item{lambdas}{vector, the to be tested values for \code{lambda}. Each value for \code{lambda} can be interpreted in terms of correlation allowed in the model.
-More precisely :
-\itemize{
-  \item{A covariate `x[j]` is not selected if its empirical correlation with all the response variables `y[1..q]` is below \code{lambda}.}
-  \item{A response variable `y[k]` is not selected if its empirical correlation with all the covariates `x[1..p]` is below \code{lambda}.}
-}
+\item{lambdas}{vector, the to be tested values for \code{lambda}.
+Each value for \code{lambda} can be interpreted in terms of correlation
+ allowed in the model.
+More precisely, a covariate `x[j]` is not selected if its empirical
+correlation with all the response variables `y[1..q]` is below \code{lambda}.
+ A response variable `y[k]` is not selected if its empirical correlation
+ with all the covariates `x[1..p]` is below \code{lambda}.
 Default to \code{seq(0,1,length.out = 30)}.}
 
-\item{n_B}{integer, the number of to be simulated bootstrap samples. Default to \code{50}.}
+\item{n_B}{integer, the number of to be simulated bootstrap samples.
+Default to \code{50}.}
 
-\item{n_lambdas}{integer, the number of lambda values. Taken into account only if \code{lambdas} is \code{NULL}. Default to 100.}
+\item{n_lambdas}{integer, the number of lambda values. Taken into account
+only if \code{lambdas} is \code{NULL}. Default to 100.}
+
+\item{gamma}{real parameter between 0 and 1 to control the fusion of the
+coefficients. Not used in validation.}
 
 \item{lowQ2}{real, the minimum value of Q^2_B to accept the
 current lambda value. Default to \code{0.0}.}
@@ -53,19 +63,19 @@ current lambda value. Default to \code{0.0}.}
 
 \item{errorMin}{real, not to be used.}
 
-\item{verbose}{boolean, whether to print current results. Defaut to \code{FALSE}.}
+\item{verbose}{boolean, whether to print current results. Defaut to
+\code{FALSE}.}
 }
 \value{
 
 }
 \description{
-The main function of the package. It does both:
-\itemize{
- \item{Start the ddsPLS algorithm, using bootstrap analysis.}
- \item{Estimate automatically the number of components and the regularization coefficients.
- One regularization parameter per component only is needed to select both in \code{x} and in \code{y}.}
- \item{Build the optimal model, of the class \code{ddsPLS}.}
-}
+The main function of the package. It does both start the ddsPLS algorithm,
+using bootstrap analysis. Also it estimates automatically the number of
+components and the regularization coefficients.
+One regularization parameter per component only is needed to select both in
+\code{x} and in \code{y}. Build the optimal model, of the class
+\code{ddsPLS}.
 Among the different parameters, the \code{lambda} is the vector of parameters that are
 tested by the algorithm along each component for each bootstrap sample. The total number
 of bootstrap samples is fixed by the parameter \code{n_B}, for this parameter, the more

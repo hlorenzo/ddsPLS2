@@ -6,7 +6,8 @@
 #' @export
 #'
 ddsPLS2_App <- function(...) {
-  vizu <- c("predict","Q2","criterion", "Q2r", "R2r", "R2", "weightX", "weightY","loadingX","loadingY")
+  vizu <- c("predict","Q2","criterion", "Q2r", "R2r", "R2", "weightX",
+            "weightY","loadingX","loadingY")
   pospos <- c("topleft","topright","bottomright","bottomleft",
               "center","top","bottom",
               "left","right")
@@ -48,17 +49,26 @@ ddsPLS2_App <- function(...) {
                         sidebarLayout(
                           sidebarPanel(
                             h2("Data"),
-                            fileInput("fileX", "Choose CSV Files for X",multiple = TRUE,accept = c("text/csv","text/comma-separated-values,text/plain",".csv")),
-                            fileInput("fileY", "Choose CSV File for Y",multiple = TRUE,accept = c("text/csv","text/comma-separated-values,text/plain",".csv")),
+                            fileInput("fileX", "Choose CSV Files for X",
+                                      multiple = TRUE,
+                                      accept = c("text/csv","text/comma-separated-values,text/plain",".csv")),
+                            fileInput("fileY", "Choose CSV File for Y",
+                                      multiple = TRUE,
+                                      accept = c("text/csv","text/comma-separated-values,text/plain",".csv")),
                             actionButton("startimport","Upload",icon=icon("upload"), inline=T),
                             tags$hr(),
                             h2("Analysis"),
+                            h3("Classical analysis"),
+                            textInput('lamsAnal', 'Enter a vector of lambdas (comma delimited)', "0.1,0.2"),
+                            actionButton("runAnal","Run analysis",icon=icon("play")),
+                            tags$hr(),
+                            h3("Bootstrap analysis"),
                             numericInput('n_B', 'Number of Bootstrap samples',50,min=50,max=1000,step = 50),
                             numericInput('NCORES', "Number of CPU's to be used",1,min=1,max=15,step = 1),
-                            actionButton("run","Run analysis",icon=icon("play")),
+                            actionButton("runB","Run bootstrap analysis",icon=icon("play")),
                             tags$hr(),
-                            tableOutput("summaryShort"),# verbatimTextOutput("summaryShort")
-                            tags$hr(),
+                            tableOutput("summaryShort"),
+                            tableOutput("summaryShortAnal"),
                             h2("Test data"),
                             fileInput("fileXTest", "Choose CSV Files for X test",multiple = TRUE,accept = c("text/csv","text/comma-separated-values,text/plain",".csv")),
                             actionButton("startimportTest","Upload Test",icon=icon("upload"), inline=T)
@@ -91,6 +101,7 @@ ddsPLS2_App <- function(...) {
                               ),
                               tabPanel(
                                 title = "Vizualisations",
+                                numericInput('gamma', 'Fusion coefficient (gamma)',0.0,min=0.0,max=100.0,step = 0.1),
                                 selectInput('plo', 'Type of vizualization', vizu),
                                 selectInput('pos', 'Legend position', pospos),
                                 numericInput('sizeplot', 'Size of plot (pixels)',600,min=200,max=3000,step = 100),
@@ -116,9 +127,9 @@ ddsPLS2_App <- function(...) {
                                         tags$b("hlorenzo/ddsPLS2"))
                         ),
                         br(),
-                        "hadrien.lorenzo.2015@gmail.com",
+                        "hadrien.lorenzo@inria.fr",
                         br(),
-                        "2021 May"
+                        "2022 January"
                )
     )
     #=======================================
@@ -127,16 +138,38 @@ ddsPLS2_App <- function(...) {
     #=======================================
     #=======================================
     output$files <- reactive({matrix(NA,0,3)})
+    fileX <- reactive({
+      input$fileX
+    })
+    fileY <- reactive({
+      input$fileY
+    })
+    fileXTest <- reactive({
+      input$fileXTest
+    })
+    sizeplot <- reactive({
+      input$sizeplot
+    })
+    gamma <- reactive({
+      input$gamma
+    })
+    sizeplot2 <- reactive({
+      input$sizeplot2
+    })
+    sizeplot3 <- reactive({
+      input$sizeplot3
+    })
+    # print("A")
     datasR <- eventReactive(input$startimport, {
-      K <- nrow(input$fileX)
+      K <- nrow(fileX())
       tryCatch(
         {
-          dfX_list <- lapply(input$fileX$datapath,function(fifi){
+          dfX_list <- lapply(fileX()$datapath,function(fifi){
             read.csv(fifi,header = input$header,sep = input$sep,dec = input$dec,
                      quote = input$quote)
           })
-          dfY <- read.csv(input$fileY$datapath,header = input$header,sep = input$sep,dec = input$dec,
-                          quote = input$quote)
+          dfY <- read.csv(fileY()$datapath,header = input$header,
+                          sep = input$sep,dec = input$dec,quote = input$quote)
         },
         error = function(e) {
           stop(safeError(e))
@@ -146,10 +179,10 @@ ddsPLS2_App <- function(...) {
       q <- ncol(dfY)
       outputFiles <- matrix(NA,K+1,3); colnames(outputFiles) <- c("Block","File name","Number of variables")
       for(k in 1:K){
-        outputFiles[k,] <- c(paste("X",k),input$fileX$name[k],ps[k])
+        outputFiles[k,] <- c(paste("X",k),fileX()$name[k],ps[k])
       }
       k <- K+1
-      outputFiles[k,] <- c("Y",input$fileY$name,q)
+      outputFiles[k,] <- c("Y",fileY()$name,q)
       output$files_n <- renderText(paste("Number of observations:",nrow(dfY)))
       output$files <- renderTable(outputFiles)
       blockNames <- outputFiles[,1]
@@ -161,12 +194,12 @@ ddsPLS2_App <- function(...) {
            outputFiles=outputFiles,
            colsReal=unlist(lapply(1:length(ps),function(k){rep(k,ps[k])})))
     })
-
+    # print("B")
     X_test <- eventReactive(input$startimportTest, {
-      K <- nrow(input$fileXTest)
+      K <- nrow(fileXTest())
       tryCatch(
         {
-          dfX_list <- lapply(input$fileXTest$datapath,function(fifi){
+          dfX_list <- lapply(fileXTest()$datapath,function(fifi){
             read.csv(fifi,header = input$header,sep = input$sep,dec = input$dec,
                      quote = input$quote)
           })
@@ -177,7 +210,7 @@ ddsPLS2_App <- function(...) {
       )
       do.call(cbind,dfX_list)
     })
-
+    # print("C")
     output$headerBlock <- renderTable({
       dada <- datasR()
       outputFiles <- dada$outputFiles
@@ -189,11 +222,7 @@ ddsPLS2_App <- function(...) {
       }
       out
     })
-
-    sizeplot2 <- reactive({
-      input$sizeplot2
-    })
-
+    # print("D")
     output$plot1R <- renderPlot({
       dada <- datasR()
       posHead <- which(dada$outputFiles[,1]==input$inSelect)
@@ -241,9 +270,20 @@ ddsPLS2_App <- function(...) {
       image(t(seq(-1,1,length.out = 24*4)),xaxt="n",las=2,zlim=c(-1,1),col=cols,yaxt="n",main="Legend")
       axis(2,at = (0:10)/10,labels = seq(-1,1,length.out = 11),las=2)
     },width = sizeplot2)
-
-    model <- eventReactive(input$run, {
-      req(input$fileX,input$fileY)
+    # print("E")
+    modelAnal <- eventReactive(input$runAnal, {
+      print("A")
+      req(fileX(),fileY())
+      x <- as.matrix(do.call(cbind,datasR()$Xs))
+      y <- as.matrix(datasR()$Y)
+      lams <- as.numeric(unlist(strsplit(input$lamsAnal,",")))
+      mo <- ddsPLS(x,y,verbose=F,doBoot = F,lambdas = lams)
+      return(mo)
+    })
+    # print("F")
+    # print("G")
+    model <- eventReactive(input$runB, {
+      req(fileX(),fileY())
       x <- as.matrix(do.call(cbind,datasR()$Xs))
       y <- as.matrix(datasR()$Y)
       mo <- ddsPLS(x,y,
@@ -251,11 +291,23 @@ ddsPLS2_App <- function(...) {
                    lambdas = NULL,n_B = input$n_B)
       return(mo)
     })
-
+    # print("H")
     output$summary <- renderPrint({
       summary(model())
     })
-
+    # print("I")
+    output$summaryShortAnal <- renderTable({
+      req(modelAnal())
+      R <- modelAnal()$R
+      out <- "No component built"
+      if(R>0){
+        expl_variance <- round(modelAnal()$varExplained$Cumu[R])
+        out <- matrix(c(R,expl_variance),nrow = 1)
+        colnames(out) <- c("Components","Explained variance (%)")
+        # paste("ddsPLS model built on ",R," component(s).\n Explains ",expl_variance,"% of variance of Y",sep="")
+      }
+      out
+    })
     output$summaryShort <- renderTable({
       req(model())
       R <- model()$R
@@ -269,13 +321,18 @@ ddsPLS2_App <- function(...) {
       }
       out
     })
-
-    sizeplot <- reactive({
-      input$sizeplot
-    })
-
+    # print("K")
     output$plot2 <- renderPlot({
       mo <- model()
+      if(is.null(mo)) mo <- modelAnal()
+      if(gamma()!=0)
+      {
+        x <- as.matrix(do.call(cbind,datasR()$Xs))
+        y <- as.matrix(datasR()$Y)
+        lambda_gamma <- mo$lambda
+        mo <- ddsPLS(x,y,lambdas = lambda_gamma,gamma=gamma(),
+                     NCORES=1,verbose =F,doBoot = F)
+      }
       noModel <- mo$R==0
       if(!noModel){
         colo <- datasR()$colsReal
@@ -285,11 +342,7 @@ ddsPLS2_App <- function(...) {
         text(x = 0,y=0,"Nothing to be plotted because model is empty.")
       }
     },height = sizeplot)
-
-    sizeplot3 <- reactive({
-      input$sizeplot3
-    })
-
+    # print("L")
     output$plottest <- renderPlot({
       x_test <- X_test()
       if(is.data.frame(x_test)){

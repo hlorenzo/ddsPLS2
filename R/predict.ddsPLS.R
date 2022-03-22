@@ -1,11 +1,15 @@
 #' Function to predict from ddsPLS objects
 #'
-#' @param x ddsPLS object
-#' @param X_test matrix, a test data-set. If is "NULL", the default value, the predicted values for the train test are returned
-#' @param toPlot boolean, wether or not to plot the extreme value test plot. Default to `TRUE`.
+#' @param x ddsPLS object.
+#' @param X_test matrix, a test data-set. If is "NULL", the default value,
+#' the predicted values for the train test are returned.
+#' @param toPlot boolean, wether or not to plot the extreme value test plot.
+#' Default to `TRUE`.
 #' @param legend.position character. Where to put the legend.
-#' @param cex float positive. Number indicating the amount by which plotting symbols should be scaled relative to the default. 1=default, 1.5 is 50% larger, 0.5 is 50% smaller, etc
-#' @param cex.text float positive. Number indicating the amount by which plotting text elements should be scaled relative to the default. 1=default, 1.5 is 50% larger, 0.5 is 50% smaller, etc
+#' @param cex float positive. Number indicating the amount by which plotting
+#' symbols should be scaled relative to the default.
+#' @param cex.text float positive. Number indicating the amount by which
+#' plotting text elements should be scaled relative to the default.
 #' @param ... Other parameters
 #'
 #' @export

@@ -51,33 +51,39 @@ summary.ddsPLS <- function(x,return=FALSE,
   if(h_opt>0){
     q <- ncol(x$Y_obs)
     p <- nrow(x$model$U)
-    ## R2 and Q2 final values
-    R2Q2 <- matrix(0,h_opt,5)
-    for(h in 1:h_opt){
-      best <- x$lambda[h]
-      bestID <- which(x$results$lambdas==best)
-      R2Q2[h,] <- c(
-        best,
-        x$results$R2mean[[h]][bestID],
-        x$results$R2hmean[[h]][bestID],
-        x$results$Q2mean[[h]][bestID],
-        x$results$Q2hmean[[h]][bestID]
-      )
+    if(x$doBoot){
+      ## R2 and Q2 final values
+      R2Q2 <- matrix(0,h_opt,5)
+      for(h in 1:h_opt){
+        best <- x$lambda[h]
+        bestID <- which(x$results$lambdas==best)
+        R2Q2[h,] <- c(
+          best,
+          x$results$R2mean[[h]][bestID],
+          x$results$R2hmean[[h]][bestID],
+          x$results$Q2mean[[h]][bestID],
+          x$results$Q2hmean[[h]][bestID]
+        )
+      }
+      colnames(R2Q2) <- c("lambda","R2","R2_r","Q2","Q2_r")
+      rownames(R2Q2) <- paste("Comp.",1:h_opt)
     }
-    colnames(R2Q2) <- c("lambda","R2","R2_r","Q2","Q2_r")
-    rownames(R2Q2) <- paste("Comp.",1:h_opt)
+    ## Explained variances for the X part
+    VARX <- do.call(rbind,x$varExplained_in_X)
+    rownames(VARX) <- c("Per component ", "Cumulative ")
+    colnames(VARX) <- paste("Comp.",1:h_opt)
     ## Explained variances for the components
-    VAR <- do.call(rbind,x$varExplained[1:2])
+    VAR <- do.call(rbind,x$varExplained[c("Comp","Cumu")])
     rownames(VAR) <- c("Per component ", "Cumulative ")
     colnames(VAR) <- paste("Comp.",1:h_opt)
     ## Explained variances for the response variables
-    VARY <- matrix(x$varExplained$PerY,nrow=1)
+    VARY <- x$varExplained$PerY
     if(is.null(colnames(x$Y_obs))){
       colnames(VARY) <- paste("Y",1:q,sep="")
     } else {
       colnames(VARY) <- colnames(x$Y_obs)
     }
-    rownames(VARY) <- ""
+    rownames(VARY) <- paste("Comp.",1:h_opt)
     ## Explained variances per response variables per component marginally
     VARYCompMarg <- matrix(x$varExplained$PerYPerComp$Comp,ncol=q)
     if(is.null(colnames(x$Y_obs))){
@@ -96,14 +102,20 @@ summary.ddsPLS <- function(x,return=FALSE,
     rownames(VARYCompTotal) <- paste("Comp.",1:h_opt)
     ######
     ######
-    cat(paste("The optimal ddsPLS model is built on",h_opt,"components\n\n"))
+    if(x$doBoot){
+      cat(paste("The optimal ddsPLS model is built on",h_opt,"component(s)\n\n"))
+    }else{
+      cat(paste("The chosen ddsPLS model is built on",h_opt,"component(s)\n\n"))
+    }
     ######
-    cat(paste("The bootstrap quality statistics:\n",
-              "---------------------------------\n",sep=""))
-    print(round(R2Q2,digits))
+    if(x$doBoot){
+      cat(paste("The bootstrap quality statistics:\n",
+                "---------------------------------\n",sep=""))
+      print(round(R2Q2,digits))
+    }
     ######
     cat(paste("\n\nThe explained variance (in %):\n",
-                "-----------------------\n",sep=""))
+              "-----------------------\n",sep=""))
     cat(paste("\nIn total: ",round(x$varExplained$Cumu[h_opt],digits),
               "\n-  -  -  \n",sep=""))
 
@@ -112,26 +124,35 @@ summary.ddsPLS <- function(x,return=FALSE,
     print(round(VAR,digits))
     ######
     cat(paste("\nPer response variable:\n",
-                "-  -  -  -  -  -  -  -\n",sep=""))
+              "-  -  -  -  -  -  -  -\n",sep=""))
     print(round(VARY,digits))
     ######
     cat(paste("\nPer response variable per component:\n",
-                "-  -  -  -  -  -  -  -  -  -  -  -  \n",
+              "-  -  -  -  -  -  -  -  -  -  -  -  \n",
               sep=""))
     print(round(VARYCompMarg,digits))
     ######
     cat(paste("\n...and cumulated to:\n",
-                "-  -  -  -  -  -  - \n",
+              "-  -  -  -  -  -  - \n",
               sep=""))
     print(round(VARYCompTotal,digits))
+
+    cat(paste("\nFor the X block:\n",
+              "-  -  -  -  -  -  -  -  -  \n",sep=""))
+    print(round(VARX,digits))
   }else{
     cat(paste("The optimal ddsPLS model is empty.\n"))
   }
   cat("=====================                =====================\n");
   cat("                     ================\n");
   if(return & h_opt>0){
-    out <- list(R2Q2=R2Q2,VAR=VAR,VARY=VARY,
-                VARYperComp=list(marginal=VARYCompMarg,total=VARYCompTotal))
+    if(x$doBoot){
+      out <- list(R2Q2=R2Q2,VAR=VAR,VARY=VARY,
+                  VARYperComp=list(marginal=VARYCompMarg,total=VARYCompTotal))
+    }else{
+      out <- list(VAR=VAR,VARY=VARY,
+                  VARYperComp=list(marginal=VARYCompMarg,total=VARYCompTotal))
+    }
     return(out)
   }
 }

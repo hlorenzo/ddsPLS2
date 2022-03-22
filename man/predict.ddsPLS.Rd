@@ -16,17 +16,21 @@
 )
 }
 \arguments{
-\item{x}{ddsPLS object}
+\item{x}{ddsPLS object.}
 
-\item{X_test}{matrix, a test data-set. If is "NULL", the default value, the predicted values for the train test are returned}
+\item{X_test}{matrix, a test data-set. If is "NULL", the default value,
+the predicted values for the train test are returned.}
 
-\item{toPlot}{boolean, wether or not to plot the extreme value test plot. Default to `TRUE`.}
+\item{toPlot}{boolean, wether or not to plot the extreme value test plot.
+Default to `TRUE`.}
 
 \item{legend.position}{character. Where to put the legend.}
 
-\item{cex}{float positive. Number indicating the amount by which plotting symbols should be scaled relative to the default. 1=default, 1.5 is 50% larger, 0.5 is 50% smaller, etc}
+\item{cex}{float positive. Number indicating the amount by which plotting
+symbols should be scaled relative to the default.}
 
-\item{cex.text}{float positive. Number indicating the amount by which plotting text elements should be scaled relative to the default. 1=default, 1.5 is 50% larger, 0.5 is 50% smaller, etc}
+\item{cex.text}{float positive. Number indicating the amount by which
+plotting text elements should be scaled relative to the default.}
 
 \item{...}{Other parameters}
 }

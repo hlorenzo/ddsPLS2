@@ -6,6 +6,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // modelddsPLSCpp_Rcpp
 Rcpp::List modelddsPLSCpp_Rcpp(const Eigen::MatrixXd U, const Eigen::MatrixXd V, const Eigen::MatrixXd X, const Eigen::MatrixXd Y, const Eigen::VectorXd lambdas, const int R, const int n, const int p, const int q, const Eigen::VectorXd lambda0);
 RcppExport SEXP _ddsPLS2_modelddsPLSCpp_Rcpp(SEXP USEXP, SEXP VSEXP, SEXP XSEXP, SEXP YSEXP, SEXP lambdasSEXP, SEXP RSEXP, SEXP nSEXP, SEXP pSEXP, SEXP qSEXP, SEXP lambda0SEXP) {
