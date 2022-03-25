@@ -500,7 +500,7 @@ ddsPLS <- function(X,Y,criterion="diffR2Q2",
         plot(out)
       }
     }else{
-      R <- 2#length(lambdas)
+      R <- length(lambdas)
       B_total <- matrix(0,p,q)
       if(R!=0){
         U_out <- matrix(0,p,R); V0 <- matrix(0,q,R)
