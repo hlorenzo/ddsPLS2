@@ -47,6 +47,7 @@ summary.ddsPLS <- function(x,return=FALSE,
   cat("                      ______________\n");
   cat("                     |    ddsPLS    |\n");
   cat("=====================----------------=====================\n");
+
   h_opt <- x$R
   if(h_opt>0){
     q <- ncol(x$Y_obs)
@@ -77,7 +78,7 @@ summary.ddsPLS <- function(x,return=FALSE,
     rownames(VAR) <- c("Per component ", "Cumulative ")
     colnames(VAR) <- paste("Comp.",1:h_opt)
     ## Explained variances for the response variables
-    VARY <- x$varExplained$PerY
+    VARY <- x$varExplained$PerYPerComp$Comp
     if(is.null(colnames(x$Y_obs))){
       colnames(VARY) <- paste("Y",1:q,sep="")
     } else {
